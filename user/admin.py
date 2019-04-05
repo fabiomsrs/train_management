@@ -1,21 +1,12 @@
 from django.contrib import admin
-from user.models import Coach, Employee
+from user.models import Employee
 
 # Register your models here.
 
-@admin.register(Coach)
-class CoachAdmin(admin.ModelAdmin):
-    search_fields = ['pk','first_name','username']
-    list_display = ('username','first_name')
-    fields = ('username','password','first_name', 'last_name','phone_number', 'email')
-    list_display_links = ('username',)
-    list_per_page = 20
-
-
 @admin.register(Employee)
-class EmployeeAdmin(admin.ModelAdmin):
+class Employee(admin.ModelAdmin):
     search_fields = ['pk','first_name','username']
     list_display = ('username','first_name')
-    fields = ('username','password','first_name', 'last_name', 'phone_number', 'email')
+    fields = ('username','password','first_name', 'is_staff', 'last_name', 'phone_number', 'email')
     list_display_links = ('username',)
     list_per_page = 20
