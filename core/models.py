@@ -7,7 +7,7 @@ class PreparationClass(models.Model):
 	duration = models.TimeField(verbose_name='Duração do treinamento')
 	coach = models.ForeignKey('user.Employee', verbose_name='Tutor', related_name='my_classes', on_delete=models.CASCADE)
 	association = models.ForeignKey('Association', verbose_name='Unidade', related_name='my_preparations_classes', on_delete=models.CASCADE)
-
+	
 	class Meta:
 		verbose_name = 'Treinamento'
 		verbose_name_plural = 'Treinamentos'
