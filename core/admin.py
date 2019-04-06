@@ -20,6 +20,18 @@ class PreparationClassAdmin(admin.ModelAdmin):
     list_display_links = ('pk',)
     list_per_page = 20
 
+    def has_change_permission(self, request, obj=None):
+    	if obj:
+	    	if request.user != obj.association.admin:
+	    		return False
+    	return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+    	if obj:
+	    	if request.user != obj.association.admin:
+	    		return False
+    	return super().has_change_permission(request, obj)
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "association":
             kwargs["queryset"] = Association.objects.filter(admin=request.user)

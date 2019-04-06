@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from .models import Association
+from .models import Association, PreparationClass
 
 
 class AssociationForm(forms.ModelForm):
@@ -19,4 +19,18 @@ class AssociationForm(forms.ModelForm):
 		return cleaned_data
 
 
-# 		
+class PreparationClassForm(forms.ModelForm):
+	def __init__(self, request, *args, **kwargs):
+		print("@@@")
+		print(request)
+				
+		user = request.GET.get('user')
+		if not user.is_superuser:
+			self.fields['association'].queryset = Association.objects.filter(admin=user)
+
+		super(PreparationClassForm, self).__init__(*args, **kwargs)		
+
+	class Meta:
+		model = PreparationClass
+		fields = '__all__'
+		
