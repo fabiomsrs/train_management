@@ -23,8 +23,8 @@ class PreparationClassAdmin(admin.ModelAdmin):
     list_per_page = 20
 
     def has_change_permission(self, request, obj=None):
-    	if obj:
-	    	if request.user != obj.association.admin:
+    	if obj:    		
+	    	if request.user.pk != obj.association.admin.pk:
 	    		return False
     	return super().has_change_permission(request, obj)
 
