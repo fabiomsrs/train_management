@@ -22,8 +22,8 @@ class Employee(CustomUser):
 		super(Employee, self).__init__(*args, **kwargs)
 
 	def save(self, *args, **kwargs):			
-		if not self.check_password(self.password):
-			self.set_password(self.password)			
+		if not self.password.startswith('pbkdf2'):
+			self.set_password(self.password)
 		super(Employee, self).save(*args, **kwargs)
 
 		if self.is_staff:			
