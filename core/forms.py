@@ -17,3 +17,6 @@ class AssociationForm(forms.ModelForm):
 		if Association.objects.filter(name=name):
 			raise forms.ValidationError({'name':_('Já existe uma unidade com o nome ' + name)})
 		return cleaned_data
+
+
+# 		
