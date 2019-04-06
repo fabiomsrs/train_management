@@ -20,5 +20,5 @@ admin.site.site_header = 'Sistema Gerenciamento de treinamentos'
 admin.site.site_title = 'Gerenciamento de treinamentos'
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('', admin.site.urls),
 ]
