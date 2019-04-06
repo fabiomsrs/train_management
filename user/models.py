@@ -5,16 +5,16 @@ from django.contrib.contenttypes.models import ContentType
 # Create your models here.
 
 
-class CustomUser(AbstractUser):	
-    phone_number = models.CharField(max_length=150, verbose_name='Numero de Telefone')
-    preparation_classes = models.ManyToManyField('core.PreparationClass', related_name='employees')
-    association = models.ForeignKey('core.Association', verbose_name='Unidade', related_name='my_employees', on_delete=models.CASCADE)
-
+class CustomUser(AbstractUser):	    
     def __str__(self):
         return self.username
 
 
 class Employee(CustomUser):
+	phone_number = models.CharField(max_length=150, verbose_name='Numero de Telefone')
+	preparation_classes = models.ManyToManyField('core.PreparationClass', related_name='employees')
+	association = models.ForeignKey('core.Association', verbose_name='Unidade', related_name='my_employees', on_delete=models.CASCADE)
+
 	def __init__(self, *args, **kwargs):
 		is_staff = self._meta.get_field('is_staff')
 		is_staff.verbose_name = 'Administrador'
