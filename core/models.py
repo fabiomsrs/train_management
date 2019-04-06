@@ -18,7 +18,7 @@ class PreparationClass(models.Model):
 
 class Association(models.Model):
 	name = models.CharField(max_length=75)
-	admin = models.OneToOneField('user.Employee', verbose_name='Administrador',related_name='association',on_delete=models.CASCADE)
+	admin = models.OneToOneField('user.Employee', verbose_name='Administrador',related_name='my_association',on_delete=models.CASCADE)
 
 	def __str__(self):
 		return self.name

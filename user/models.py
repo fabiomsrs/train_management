@@ -7,7 +7,8 @@ from django.contrib.contenttypes.models import ContentType
 
 class CustomUser(AbstractUser):	
     phone_number = models.CharField(max_length=150, verbose_name='Numero de Telefone')
-    preparation_classes = models.ManyToManyField('core.PreparationClass', related_name='Employees')
+    preparation_classes = models.ManyToManyField('core.PreparationClass', related_name='employees')
+    association = models.ForeignKey('core.Association', verbose_name='Unidade', related_name='my_employees', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.username
