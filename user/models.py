@@ -12,7 +12,7 @@ class CustomUser(AbstractUser):
 
 class Employee(CustomUser):
 	phone_number = models.CharField(max_length=150, verbose_name='Numero de Telefone')
-	preparation_classes = models.ManyToManyField('core.PreparationClass', related_name='employees')
+	preparation_classes = models.ManyToManyField('core.PreparationClass', verbose_name='treinamentos', related_name='employees')
 	association = models.ForeignKey('core.Association', verbose_name='Unidade', related_name='my_employees', on_delete=models.CASCADE)
 
 	def __init__(self, *args, **kwargs):
