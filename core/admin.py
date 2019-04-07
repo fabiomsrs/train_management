@@ -24,17 +24,17 @@ class PreparationClassAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
     	if obj:    		
-	    	if request.user.pk != obj.association.admin.pk:
+	    	if request.user.pk != obj.association.admin.pk and not request.user.is_superuser:
 	    		return False
     	return super().has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
     	if obj:
-	    	if request.user != obj.association.admin:
+	    	if request.user != obj.association.admin and not request.user.is_superuser:
 	    		return False
     	return super().has_change_permission(request, obj)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "association":
+        if db_field.name == "association" and not request.user.is_superuser:
             kwargs["queryset"] = Association.objects.filter(admin=request.user)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
