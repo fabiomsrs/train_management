@@ -12,7 +12,7 @@ class CustomUser(AbstractUser):
 
 class Employee(CustomUser):
 	phone_number = models.CharField(max_length=150, verbose_name='Numero de Telefone')
-	preparation_classes = models.ManyToManyField('core.PreparationClass', verbose_name='treinamentos', related_name='employees')
+	preparation_classes = models.ManyToManyField('core.PreparationClass', blank=True, verbose_name='treinamentos', related_name='employees')
 	association = models.ForeignKey('core.Association', verbose_name='Unidade', related_name='my_employees', on_delete=models.CASCADE)
 
 	def __init__(self, *args, **kwargs):
@@ -27,10 +27,14 @@ class Employee(CustomUser):
 		super(Employee, self).save(*args, **kwargs)
 
 		if self.is_staff:			
-			class_content = ContentType.objects.get(model='preparationclass')			
+			class_content = ContentType.objects.get(model='preparationclass')
 			class_permissions = Permission.objects.filter(content_type=class_content)
-			
 			[self.user_permissions.add(class_permission) for class_permission in class_permissions]
+
+			employee_content = ContentType.objects.get(model='employee')					
+			employee_permissions = Permission.objects.filter(content_type=employee_content)
+			[self.user_permissions.add(employee_permission) for employee_permission in employee_permissions]
+
 
 	def __str__(self):
 		return self.first_name

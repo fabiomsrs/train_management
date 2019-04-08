@@ -19,18 +19,17 @@ class AssociationForm(forms.ModelForm):
 		return cleaned_data
 
 
-class PreparationClassForm(forms.ModelForm):
-	def __init__(self, request, *args, **kwargs):
-		print("@@@")
-		print(request)
+# class PreparationClassForm(forms.ModelForm):
+# 	def __init__(self, request, *args, **kwargs):		
+# 		print(request)
 				
-		user = request.GET.get('user')
-		if not user.is_superuser:
-			self.fields['association'].queryset = Association.objects.filter(admin=user)
+# 		user = request.GET.get('user')
+# 		if not user.is_superuser:
+# 			self.fields['association'].queryset = Association.objects.filter(admin=user)
 
-		super(PreparationClassForm, self).__init__(*args, **kwargs)		
+# 		super(PreparationClassForm, self).__init__(*args, **kwargs)		
 
-	class Meta:
-		model = PreparationClass
-		fields = '__all__'
-		
+# 	class Meta:
+# 		model = PreparationClass
+# 		fields = '__all__'
+# 		

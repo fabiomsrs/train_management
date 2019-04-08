@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from .models import PreparationClass, Association
+from .models import Association, PreparationClass
 from .forms import AssociationForm
 # Register your models here.
 
