@@ -7,9 +7,11 @@ class PreparationClass(models.Model):
 	date = models.DateField(verbose_name='Dia do treinamento')
 	duration = models.TimeField(verbose_name='Duração do treinamento')
 	coach = models.ForeignKey('user.Employee', verbose_name='Tutor', related_name='my_classes', on_delete=models.CASCADE)
-	frequency = models.IntegerField(default=1)
-	description = models.TextField(max_length=140)
+	frequency = models.IntegerField(default=1)	
 	association = models.ForeignKey('Association', verbose_name='Unidade', related_name='my_preparations_classes', on_delete=models.CASCADE)
+	employees = models.ManyToManyField('user.Employee', blank=True, verbose_name='funcionarios', related_name='my_preparations_classes')
+	positions = models.ManyToManyField('user.Position', blank=True, verbose_name='cargos', related_name='my_preparations_classes')
+	description = models.TextField(max_length=140)
 
 	def __str__(self):
 		return self.title
@@ -20,8 +22,7 @@ class PreparationClass(models.Model):
 		
 
 class Association(models.Model):
-	name = models.CharField(max_length=75)
-	admin = models.OneToOneField('user.Employee', verbose_name='Administrador',related_name='my_association',on_delete=models.CASCADE)
+	name = models.CharField(max_length=75)	
 
 	def __str__(self):
 		return self.name

@@ -9,11 +9,8 @@ class AssociationForm(forms.ModelForm):
 		fields = '__all__'
 	
 	def clean(self):
-		cleaned_data = self.cleaned_data		
-		admin = cleaned_data.get('admin')		
-		name = cleaned_data.get('name')
-		if not admin.is_staff:
-			raise forms.ValidationError({'admin':_('Funcionario administrador da unidade não possui permissão de administrador')})
+		cleaned_data = self.cleaned_data					
+		name = cleaned_data.get('name')		
 		if Association.objects.filter(name=name):
 			raise forms.ValidationError({'name':_('Já existe uma unidade com o nome ' + name)})
 		return cleaned_data

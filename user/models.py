@@ -11,9 +11,9 @@ class CustomUser(AbstractUser):
 
 
 class Employee(CustomUser):
-	phone_number = models.CharField(max_length=150, verbose_name='Numero de Telefone')
-	preparation_classes = models.ManyToManyField('core.PreparationClass', blank=True, verbose_name='treinamentos', related_name='employees')
+	phone_number = models.CharField(max_length=150, verbose_name='Numero de Telefone')	
 	association = models.ForeignKey('core.Association', verbose_name='Unidade', related_name='my_employees', on_delete=models.CASCADE)
+	position = models.ForeignKey('Position', verbose_name='Cargo', related_name='employees', on_delete=models.CASCADE)
 
 	def __init__(self, *args, **kwargs):
 		is_staff = self._meta.get_field('is_staff')
@@ -42,3 +42,13 @@ class Employee(CustomUser):
 	class Meta:        
 		verbose_name = 'Funcionario'
 		verbose_name_plural = 'Funcionarios'
+
+
+class Position(models.Model):
+	name = models.CharField(max_length=75, verbose_name='Nome do cargo')
+
+	def __str__(self):
+		return self.name
+	class Meta:        
+		verbose_name = 'Cargo'
+		verbose_name_plural = 'Cargos'
