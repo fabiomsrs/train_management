@@ -12,7 +12,7 @@ class AssociationForm(forms.ModelForm):
 		cleaned_data = self.cleaned_data					
 		name = cleaned_data.get('name')		
 		if Association.objects.filter(name=name):
-			raise forms.ValidationError({'name':_('Já existe uma unidade com o nome ' + name)})
+			raise forms.ValidationError({'name':_('Já existe uma unidade cadastrada com o nome ' + name)})
 		return cleaned_data
 
 

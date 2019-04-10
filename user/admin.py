@@ -1,11 +1,15 @@
 from django.contrib import admin
 from .models import Employee, Position
+from .forms import PositionForm
 
 # Register your models here.
-admin.site.register(Position)
+@admin.register(Position)
+class PositionAdmin(admin.ModelAdmin):
+	form=PositionForm
+	list_per_page = 20
 
 @admin.register(Employee)
-class Employee(admin.ModelAdmin):	
+class EmployeeAdmin(admin.ModelAdmin):	
 	search_fields = ['pk','first_name','username']
 	list_display = ('username','first_name','association')	
 	list_display_links = ('username',)
@@ -42,7 +46,7 @@ class Employee(admin.ModelAdmin):
 	def save_model(self, request, obj, form, change):
 		if not request.user.is_superuser:	
 			obj.association = request.user.employee.association
-		super(Employee, self).save_model(request, obj, form, change)
+		super(EmployeeAdmin, self).save_model(request, obj, form, change)
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
