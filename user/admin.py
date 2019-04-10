@@ -50,7 +50,7 @@ class EmployeeAdmin(admin.ModelAdmin):
 	def add_view(self, request, object_id=None, extra_context=None):		
 		if not request.user.is_superuser:
 			self.exclude = ('association','is_staff')
-		return super(PreparationClassAdmin, self).change_view(request, object_id, extra_context)
+		return super(EmployeeAdmin, self).change_view(request, object_id, extra_context)
 
 	def get_fields(self, request, obj):
 		fields = super().get_fields(request, obj)
