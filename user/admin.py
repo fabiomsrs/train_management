@@ -16,7 +16,7 @@ class Employee(admin.ModelAdmin):
 			if not request.user.is_superuser:
 				if request.user.pk == obj.pk:
 					return True
-				elif request.user.employee.association == obj.association and not obj.is_staff:					
+				elif request.user.employee.association == obj.association and not obj.is_staff and request.user.has_perm('user.change_employee'):					
 					return True
 				else:
 					return False
@@ -27,19 +27,25 @@ class Employee(admin.ModelAdmin):
 			if not request.user.is_superuser:
 				if request.user.pk == obj.pk:
 					return True
-				elif request.user.employee.association == obj.association and not obj.is_staff:					
+				elif request.user.employee.association == obj.association and not obj.is_staff and request.user.has_perm('user.delete_employee'):					
 					return True
 				else:
 					return False
-		return super().has_change_permission(request, obj)
+		return super().has_delete_permission(request, obj)
 
 	def get_fields(self, request, obj):
 		fields = super().get_fields(request, obj)
 		if not request.user.is_superuser:
-			return ('username','password','first_name', 'last_name', 'is_staff','position', 'phone_number', 'email')
+			return ('username','password','first_name', 'last_name','position', 'phone_number', 'email')
 		return ('username','password','first_name', 'last_name', 'is_staff', 'position', 'phone_number', 'email', 'association')
 
 	def save_model(self, request, obj, form, change):
 		if not request.user.is_superuser:	
 			obj.association = request.user.employee.association
 		super(Employee, self).save_model(request, obj, form, change)
+
+	def get_queryset(self, request):
+		qs = super().get_queryset(request)
+		if not request.user.is_superuser:
+			return qs.filter(association=request.user.employee.association)
+		return qs

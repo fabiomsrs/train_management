@@ -34,7 +34,11 @@ class Employee(CustomUser):
 			employee_content = ContentType.objects.get(model='employee')					
 			employee_permissions = Permission.objects.filter(content_type=employee_content)
 			[self.user_permissions.add(employee_permission) for employee_permission in employee_permissions]
-
+		else:
+			self.is_staff = True
+			permission = Permission.objects.get(codename='view_preparationclass')
+			self.user_permissions.add(permission)
+			super(Employee, self).save(*args, **kwargs)
 
 	def __str__(self):
 		return self.first_name

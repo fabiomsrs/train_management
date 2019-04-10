@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import widgets
 from django.contrib.auth.models import Group
 from .models import Association, PreparationClass
+from user.models import Employee
 from .forms import AssociationForm
 # Register your models here.
 
@@ -32,23 +33,28 @@ class PreparationClassAdmin(admin.ModelAdmin):
 		return super(PreparationClassAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 	def has_change_permission(self, request, obj=None):
-		if obj:    		
-			if request.user.pk != obj.association.admin.pk and not request.user.is_superuser:
+		if obj:
+			if not request.user.is_superuser:				
+				if request.user.employee.is_staff and obj.association == request.user.employee.association and request.user.has_perm('core.change_preparationclass'):
+					return True			
 				return False
 		return super().has_change_permission(request, obj)
 
 	def has_delete_permission(self, request, obj=None):
 		if obj:
-			if request.user != obj.association.admin and not request.user.is_superuser:
+			if not request.user.is_superuser:				
+				if request.user.employee.is_staff and obj.association == request.user.employee.association and request.user.has_perm('core.delete_preparationclass'):					
+					return True			
 				return False
-		return super().has_change_permission(request, obj)
+		return super().has_delete_permission(request, obj)
 
-	def formfield_for_foreignkey(self, db_field, request, **kwargs):
-	    if db_field.name == "association" and not request.user.is_superuser:
-	        kwargs["queryset"] = Association.objects.filter(admin=request.user)
-	    return super().formfield_for_foreignkey(db_field, request, **kwargs)
+	def get_queryset(self, request):
+		qs = super().get_queryset(request)
+		if not request.user.is_superuser:
+			return qs.filter(association=request.user.employee.association)
+		return qs
 
 	def save_model(self, request, obj, form, change):
 		if not request.user.is_superuser:	
 			obj.association = request.user.employee.association
-		super(Employee, self).save_model(request, obj, form, change)
+		super(PreparationClassAdmin, self).save_model(request, obj, form, change)
