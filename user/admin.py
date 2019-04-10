@@ -8,6 +8,7 @@ class PositionAdmin(admin.ModelAdmin):
 	form=PositionForm
 	list_per_page = 20
 
+
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):	
 	search_fields = ['pk','first_name','username']
@@ -20,7 +21,7 @@ class EmployeeAdmin(admin.ModelAdmin):
 			if not request.user.is_superuser:
 				if request.user.pk == obj.pk:
 					return True
-				elif request.user.employee.association == obj.association and not obj.is_staff and request.user.has_perm('user.change_employee'):					
+				elif request.user.employee.association == obj.association and not obj.has_staff_perm and request.user.has_perm('user.change_employee'):					
 					return True
 				else:
 					return False
@@ -31,11 +32,25 @@ class EmployeeAdmin(admin.ModelAdmin):
 			if not request.user.is_superuser:
 				if request.user.pk == obj.pk:
 					return True
-				elif request.user.employee.association == obj.association and not obj.is_staff and request.user.has_perm('user.delete_employee'):					
+				elif request.user.employee.association == obj.association and not obj.has_staff_perm and request.user.has_perm('user.delete_employee'):					
 					return True
 				else:
 					return False
 		return super().has_delete_permission(request, obj)
+
+	def change_view(self, request, object_id, form_url='', extra_context=None):
+		obj = Employee.objects.get(pk=object_id)		
+		if not request.user.is_superuser and self.has_change_permission(request,obj):
+			self.exclude = ('association','is_staff')
+
+		return super().change_view(
+            request, object_id, form_url, extra_context=extra_context,
+        )
+
+	def add_view(self, request, object_id=None, extra_context=None):		
+		if not request.user.is_superuser:
+			self.exclude = ('association','is_staff')
+		return super(PreparationClassAdmin, self).change_view(request, object_id, extra_context)
 
 	def get_fields(self, request, obj):
 		fields = super().get_fields(request, obj)

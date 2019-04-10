@@ -39,6 +39,10 @@ class Employee(CustomUser):
 			permission = Permission.objects.get(codename='view_preparationclass')
 			self.user_permissions.add(permission)
 			super(Employee, self).save(*args, **kwargs)
+			
+	@property
+	def has_staff_perm(self):
+		return self.user_permissions.count() >= 8
 
 	def __str__(self):
 		return self.first_name
@@ -50,6 +54,7 @@ class Employee(CustomUser):
 
 class Position(models.Model):
 	name = models.CharField(max_length=75, verbose_name='Nome do cargo')
+	can_create_preparationclass = models.BooleanField(default=False, verbose_name='Pode criar treinamentos')
 
 	def __str__(self):
 		return self.name
