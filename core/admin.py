@@ -10,7 +10,7 @@ admin.site.unregister(Group)
 
 @admin.register(Association)
 class AssociationAdmin(admin.ModelAdmin):	
-    search_fields = ['pk','name']
+    search_fields = ['name']
     list_display = ('name',)    
     list_display_links = ('name',)
     list_per_page = 20
@@ -19,17 +19,26 @@ class AssociationAdmin(admin.ModelAdmin):
 
 @admin.register(PreparationClass)
 class PreparationClassAdmin(admin.ModelAdmin):	
-	search_fields = ['pk','coach','association','date']
+	search_fields = ['pk','title']
 	list_display = ('pk','title','coach','date','duration','location','association','description')
 	list_display_links = ('pk',)
 	list_per_page = 20
-    
+
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):
+		if db_field.name == 'coach' and not request.user.is_superuser:
+			kwargs["queryset"] = Employee.objects.filter(association=request.user.employee.association)
+		if db_field.name == 'association' and not request.user.is_superuser:
+			kwargs["queryset"] = Association.objects.filter(name=request.user.employee.association.name)
+		return super().formfield_for_foreignkey(db_field, request, **kwargs)
+		
 	def formfield_for_manytomany(self, db_field, request, **kwargs):
 		vertical = False  # change to True if you prefer boxes to be stacked vertically
 		kwargs['widget'] = widgets.FilteredSelectMultiple(
 			db_field.verbose_name,
 			vertical,
 		)
+		if db_field.name == 'employees' and not request.user.is_superuser:
+			kwargs["queryset"] = Employee.objects.filter(association=request.user.employee.association)
 		return super(PreparationClassAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 	def has_add_permission(self, request, obj=None):		
@@ -51,7 +60,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 	def has_delete_permission(self, request, obj=None):
 		if obj:
 			if not request.user.is_superuser:				
-				if request.user.employee.has_staff_permand and obj.association == request.user.employee.association and request.user.has_perm('core.delete_preparationclass'):
+				if request.user.employee.has_staff_perm and obj.association == request.user.employee.association and request.user.has_perm('core.delete_preparationclass'):
 					return True			
 				if request.user.pk == obj.coach.pk:
 					return True
@@ -64,24 +73,13 @@ class PreparationClassAdmin(admin.ModelAdmin):
 			return qs.filter(association=request.user.employee.association)
 		return qs
 
-	def change_view(self, request, object_id, form_url='', extra_context=None):
-		obj = PreparationClass.objects.get(pk=object_id)
-		if request.user.employee.position.can_create_preparationclass and self.has_change_permission(request,obj):
-			self.exclude = ('coach','association')
-		elif not request.user.is_superuser:
-			self.exclude = ('association')
-
-		return super().change_view(
-            request, object_id, form_url, extra_context=extra_context,
-        )
-
-	def add_view(self, request, object_id=None, extra_context=None):
-		if request.user.employee.position.can_create_preparationclass:
-			self.exclude = ('coach','association')
-		elif not request.user.is_superuser:
-			self.exclude = ('association')
-		return super(PreparationClassAdmin, self).change_view(request, object_id, extra_context)
-
+	def get_fields(self, request, obj):
+		fields = super().get_fields(request, obj)
+		if not request.user.is_superuser:
+			if request.user.employee.position.can_create_preparationclass:
+				return ('title','date','duration','location','employees','positions','description')	
+			return ('title','date','duration','coach','location','employees','positions','description')
+		return ('title','date','duration','coach','location','association','employees','positions','description')
 
 	def save_model(self, request, obj, form, change):
 		if not request.user.is_superuser:	
