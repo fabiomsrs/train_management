@@ -38,11 +38,12 @@ class EmployeeAdmin(admin.ModelAdmin):
 					return False
 		return super().has_delete_permission(request, obj)
 
-	def get_fields(self, request, obj):
-		fields = super().get_fields(request, obj)
+	def get_readonly_fields(self, request, obj):
 		if not request.user.is_superuser:
-			return ('username','password','first_name', 'last_name','position', 'phone_number', 'email')
-		return ('username','password','first_name', 'last_name', 'is_staff', 'position', 'phone_number', 'email', 'association')
+			return self.readonly_fields + ('is_staff','association')
+
+	def get_fields(self, request, obj):
+		return ('username','password','first_name', 'last_name', 'is_staff', 'association', 'position', 'phone_number', 'email')
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)

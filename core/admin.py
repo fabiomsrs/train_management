@@ -73,12 +73,14 @@ class PreparationClassAdmin(admin.ModelAdmin):
 			return qs.filter(association=request.user.employee.association)
 		return qs
 
-	def get_fields(self, request, obj):
-		fields = super().get_fields(request, obj)
+	def get_readonly_fields(self, request, obj):				
 		if not request.user.is_superuser:
 			if request.user.employee.position.can_create_preparationclass:
-				return ('title','date','duration','location','employees','positions','description')	
-			return ('title','date','duration','coach','location','employees','positions','description')
+				return self.readonly_fields + ('coach','association')				
+			return self.readonly_fields + ('association',)	
+		return self.readonly_fields
+
+	def get_fields(self, request, obj):
 		return ('title','date','duration','coach','location','association','employees','positions','description')
 
 	def save_model(self, request, obj, form, change):
