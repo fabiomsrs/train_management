@@ -41,8 +41,9 @@ class EmployeeAdmin(admin.ModelAdmin):
 	def get_readonly_fields(self, request, obj):
 		if not request.user.is_superuser:
 			return self.readonly_fields + ('is_staff','association')
+		return self.readonly_fields
 
-	def get_fields(self, request, obj):
+	def get_fields(self, request, obj):		
 		return ('username','password','first_name', 'last_name', 'is_staff', 'association', 'position', 'phone_number', 'email')
 
 	def get_queryset(self, request):
