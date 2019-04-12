@@ -12,10 +12,14 @@ class PositionAdmin(admin.ModelAdmin):
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):	
 	search_fields = ['first_name','username']
-	list_display = ('username','first_name', 'last_name', 'is_staff', 'position', 'phone_number', 'email', 'association')	
+	list_display = ('username','first_name', 'last_name','admin', 'position', 'phone_number', 'email', 'association')	
 	list_display_links = ('username',)
 	list_per_page = 20	
 
+	def admin(self, obj):
+		return obj.user_permissions.count() == 8
+	admin.boolean = True
+	
 	def has_change_permission(self, request, obj=None):
 		if obj:
 			if not request.user.is_superuser:
@@ -40,11 +44,11 @@ class EmployeeAdmin(admin.ModelAdmin):
 
 	def get_readonly_fields(self, request, obj):
 		if not request.user.is_superuser:
-			return self.readonly_fields + ('is_staff','association')
+			return self.readonly_fields + ('association')
 		return self.readonly_fields
 
 	def get_fields(self, request, obj):		
-		return ('username','password','first_name', 'last_name', 'is_staff', 'association', 'position', 'phone_number', 'email')
+		return ('username','password','first_name','last_name','association', 'position', 'phone_number', 'email')
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)

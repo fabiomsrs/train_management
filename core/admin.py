@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.contrib.admin import widgets
 from django.contrib.auth.models import Group
+from django.db.models import Q
 from .models import Association, PreparationClass
-from user.models import Employee
 from .forms import AssociationForm
+from user.models import Employee
 # Register your models here.
 
 admin.site.unregister(Group)
@@ -70,7 +71,9 @@ class PreparationClassAdmin(admin.ModelAdmin):
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
 		if not request.user.is_superuser:
-			return qs.filter(association=request.user.employee.association)
+			if request.user.employee.has_staff_perm:
+				return qs.filter(association=request.user.employee.association)
+			return qs.filter(Q(employees__id=request.user.pk) | Q(coach=request.user.pk))
 		return qs
 
 	def get_readonly_fields(self, request, obj):				

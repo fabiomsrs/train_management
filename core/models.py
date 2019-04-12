@@ -1,10 +1,12 @@
 from django.db import models
+import datetime
 
 # Create your models here.
 
 class PreparationClass(models.Model):
 	title = models.CharField(max_length=75, verbose_name='Título do treinamento')
 	date = models.DateField(verbose_name='Dia do treinamento')
+	time = models.TimeField(auto_now=True, verbose_name='Hora do treinamento')
 	duration = models.IntegerField(verbose_name='Duração do treinamento',help_text='Nota: quantidade inserida em minutos')
 	coach = models.ForeignKey('user.Employee', verbose_name='Tutor', related_name='my_classes', on_delete=models.CASCADE)	
 	location = models.CharField(max_length=100, verbose_name='Local do treinamento')	
