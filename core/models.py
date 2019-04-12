@@ -5,7 +5,7 @@ from django.db import models
 class PreparationClass(models.Model):
 	title = models.CharField(max_length=75, verbose_name='Título do treinamento')
 	date = models.DateField(verbose_name='Dia do treinamento')
-	duration = models.TimeField(verbose_name='Duração do treinamento')
+	duration = models.IntegerField(verbose_name='Duração do treinamento',help_text='Nota: quantidade inserida em minutos')
 	coach = models.ForeignKey('user.Employee', verbose_name='Tutor', related_name='my_classes', on_delete=models.CASCADE)	
 	location = models.CharField(max_length=100, verbose_name='Local do treinamento')	
 	association = models.ForeignKey('Association', verbose_name='Unidade', related_name='my_preparations_classes', on_delete=models.CASCADE)

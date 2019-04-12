@@ -74,9 +74,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 		return qs
 
 	def get_readonly_fields(self, request, obj):				
-		if not request.user.is_superuser:
-			if request.user.employee.position.can_create_preparationclass:
-				return self.readonly_fields + ('coach','association')				
+		if not request.user.is_superuser:		 			
 			return self.readonly_fields + ('association',)	
 		return self.readonly_fields
 
