@@ -47,7 +47,9 @@ class EmployeeAdmin(admin.ModelAdmin):
 			return self.readonly_fields + ('association')
 		return self.readonly_fields
 
-	def get_fields(self, request, obj):		
+	def get_fields(self, request, obj):
+		if request.user.is_superuser:
+			return ('username','password','first_name','last_name','is_staff','association', 'position', 'phone_number', 'email')
 		return ('username','password','first_name','last_name','association', 'position', 'phone_number', 'email')
 
 	def get_queryset(self, request):

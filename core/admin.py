@@ -81,7 +81,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 			return self.readonly_fields + ('association',)	
 		return self.readonly_fields
 
-	def get_fields(self, request, obj):
+	def get_fields(self, request, obj):		
 		return ('title','date','duration','coach','location','association','employees','positions','description')
 
 	def save_model(self, request, obj, form, change):
