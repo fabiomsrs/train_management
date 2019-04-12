@@ -17,9 +17,9 @@ class EmployeeAdmin(admin.ModelAdmin):
 	list_per_page = 20	
 
 	def admin(self, obj):
-		return obj.user_permissions.count() == 8
+		return obj.user_permissions.count() >= 8
 	admin.boolean = True
-	
+
 	def has_change_permission(self, request, obj=None):
 		if obj:
 			if not request.user.is_superuser:

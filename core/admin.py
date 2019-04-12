@@ -73,7 +73,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 		if not request.user.is_superuser:
 			if request.user.employee.has_staff_perm:
 				return qs.filter(association=request.user.employee.association)
-			return qs.filter(Q(employees__id=request.user.pk) | Q(coach=request.user.pk))
+			return qs.filter(Q(employees__id=request.user.pk) | Q(coach=request.user.pk) | Q(positions__id=request.user.employee.position.pk))
 		return qs
 
 	def get_readonly_fields(self, request, obj):				
