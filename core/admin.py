@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.contrib.admin import widgets
 from django.contrib.auth.models import Group
 from django.db.models import Q
-from .models import Association, PreparationClass
-from .forms import AssociationForm
+from .models import Association, PreparationClass, Location
+from .forms import AssociationForm, LocationForm
 from user.models import Employee
 # Register your models here.
 
@@ -18,10 +18,27 @@ class AssociationAdmin(admin.ModelAdmin):
     form = AssociationForm
 
 
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):	
+	search_fields = ['name']
+	list_display = ('name','association')    
+	list_display_links = ('name',)
+	list_per_page = 20
+	form = LocationForm
+
+	def get_queryset(self, request):
+		qs = super().get_queryset(request)
+		if not request.user.is_superuser:
+			if request.user.employee.has_staff_perm:
+				return qs.filter(association=request.user.employee.association)		
+		return qs
+
+
+
 @admin.register(PreparationClass)
 class PreparationClassAdmin(admin.ModelAdmin):	
 	search_fields = ['pk','title']
-	list_display = ('pk','title','coach','date','duration','location','association','description')
+	list_display = ('pk','title','coach','date','time','duration','location','association','description')
 	list_display_links = ('pk',)
 	list_per_page = 20
 
@@ -82,7 +99,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 		return self.readonly_fields
 
 	def get_fields(self, request, obj):		
-		return ('title','date','duration','coach','location','association','employees','positions','description')
+		return ('title','date','time','duration','coach','location','association','employees','positions','description')
 
 	def save_model(self, request, obj, form, change):
 		if not request.user.is_superuser:	

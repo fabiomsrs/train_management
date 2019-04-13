@@ -34,6 +34,10 @@ class Employee(CustomUser):
 			employee_content = ContentType.objects.get(model='employee')					
 			employee_permissions = Permission.objects.filter(content_type=employee_content)
 			[self.user_permissions.add(employee_permission) for employee_permission in employee_permissions]
+
+			location_content = ContentType.objects.get(model='location')					
+			location_permissions = Permission.objects.filter(content_type=location_content)
+			[self.user_permissions.add(location_permission) for location_permission in location_permissions]
 		else:
 			self.is_staff = True
 			permission = Permission.objects.get(codename='view_preparationclass')
@@ -45,7 +49,7 @@ class Employee(CustomUser):
 		return self.user_permissions.count() >= 8
 
 	def __str__(self):
-		return self.first_name
+		return self.first_name + ' - unidade: ' + self.association.name
 	
 	class Meta:        
 		verbose_name = 'Funcionario'
