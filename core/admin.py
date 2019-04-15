@@ -94,7 +94,9 @@ class PreparationClassAdmin(admin.ModelAdmin):
 		return qs
 
 	def get_readonly_fields(self, request, obj):				
-		if not request.user.is_superuser:		 			
+		if not request.user.is_superuser:		 		
+			if not request.user.employee.has_staff_perm:	
+				return self.readonly_fields + ('association','coach')	
 			return self.readonly_fields + ('association',)	
 		return self.readonly_fields
 
@@ -104,7 +106,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 	def save_model(self, request, obj, form, change):
 		if not request.user.is_superuser:	
 			obj.association = request.user.employee.association
-			if request.user.employee.position.can_create_preparationclass:
+			if request.user.employee.position.can_create_preparationclass and not request.user.employee.has_staff_perm:
 				obj.coach = request.user.employee
 
 		super(PreparationClassAdmin, self).save_model(request, obj, form, change)
