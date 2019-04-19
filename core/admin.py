@@ -1,10 +1,12 @@
 from django.contrib import admin
 from django.contrib.admin import widgets
+from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import Group
 from django.db.models import Q
-from .models import Association, PreparationClass, Location
 from .forms import AssociationForm, LocationForm, PreparationClassForm
+from .models import Association, PreparationClass, Location, ClassRegister
 from user.models import Employee
+import re
 # Register your models here.
 
 admin.site.unregister(Group)
@@ -33,6 +35,10 @@ class LocationAdmin(admin.ModelAdmin):
 				return qs.filter(association=request.user.employee.association)		
 		return qs
 
+	def get_readonly_fields(self, request, obj):				
+		if not request.user.is_superuser:		 					
+			return self.readonly_fields + ('association',)			
+		return self.readonly_fields
 
 
 @admin.register(PreparationClass)
@@ -95,12 +101,14 @@ class PreparationClassAdmin(admin.ModelAdmin):
 		qs = super().get_queryset(request)
 		if not request.user.is_superuser:
 			if request.user.employee.has_staff_perm:
-				return qs.filter(association=request.user.employee.association)
-			return qs.filter(Q(employees__id=request.user.pk) | Q(coach=request.user.pk) | Q(positions__id=request.user.employee.position.pk, association=request.user.employee.association))
+				return qs.filter(association=request.user.employee.association)			
+			return qs.filter(Q(employees__id=request.user.pk) | Q(coach=request.user.pk) | Q(positions__id=request.user.employee.position.pk, association=request.user.employee.association)).distinct()
 		return qs
 
 	def get_readonly_fields(self, request, obj):				
-		if not request.user.is_superuser:		 			
+		if not request.user.is_superuser:		 		
+			if not request.user.employee.has_staff_perm:	
+				return self.readonly_fields + ('association','coach')	
 			return self.readonly_fields + ('association',)	
 		return self.readonly_fields
 
@@ -110,7 +118,46 @@ class PreparationClassAdmin(admin.ModelAdmin):
 	def save_model(self, request, obj, form, change):
 		if not request.user.is_superuser:	
 			obj.association = request.user.employee.association
-			if request.user.employee.position.can_create_preparationclass:
+			if request.user.employee.position.can_create_preparationclass and not request.user.employee.has_staff_perm:
 				obj.coach = request.user.employee
 
 		super(PreparationClassAdmin, self).save_model(request, obj, form, change)
+
+
+@admin.register(ClassRegister)
+class ClassRegisterAdmin(admin.ModelAdmin):	    
+	list_display = ('preparation_class','start_class','end_class','conclude')    
+	# list_display_links = ('name',)    
+	list_per_page = 20
+
+	def get_queryset(self, request):
+		qs = super().get_queryset(request)		
+		if not request.user.is_superuser:
+			return qs.filter(preparation_class__coach=request.user.employee)
+		return qs
+
+	def has_change_permission(self, request, obj=None):
+		if obj:
+			if not request.user.is_superuser:
+				if request.user.employee == obj.preparation_class.coach and not obj.conclude:
+					return True
+				return False
+			return True
+			
+	def get_fields(self, request, obj):		
+		return ('preparation_class','attendeeds','start_class','end_class','conclude')
+	
+	def get_readonly_fields(self, request, obj):						
+		return self.readonly_fields + ('preparation_class',)
+
+	def formfield_for_manytomany(self, db_field, request, **kwargs):
+		x = re.findall("\\d", request.get_full_path_info())		
+		
+		if x:
+			pk = int("".join(x))
+			if db_field.name == 'attendeeds':
+				preparation_class = ClassRegister.objects.get(pk=pk).preparation_class
+				kwargs["queryset"] = Employee.objects.filter(Q(my_preparations_classes=preparation_class) | Q(position__in=preparation_class.positions.all())).filter(association=preparation_class.association).distinct()				
+			kwargs['widget'] = CheckboxSelectMultiple()  
+
+		return super(ClassRegisterAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)

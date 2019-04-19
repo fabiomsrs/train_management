@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import Permission
 import datetime
 
 # Create your models here.
@@ -17,11 +19,34 @@ class PreparationClass(models.Model):
 
 	def __str__(self):
 		return self.title
+	
+	def save(self, *args, **kwargs):
+		if not self.pk:
+			super(PreparationClass, self).save(*args, **kwargs)
+			class_register = ClassRegister.objects.create(preparation_class=self)
+			permission = Permission.objects.get(codename='change_classregister')			
+			self.coach.user_permissions.add(permission)
+			permission = Permission.objects.get(codename='view_classregister')			
+			self.coach.user_permissions.add(permission)
+			
+		super(PreparationClass, self).save(*args, **kwargs)
 
 	class Meta:
 		verbose_name = 'Treinamento'
-		verbose_name_plural = 'Treinamentos'	
+		verbose_name_plural = 'Treinamentos'
 		
+
+class ClassRegister(models.Model):
+	preparation_class = models.OneToOneField('PreparationClass', verbose_name='Registro do treinamento', on_delete=models.CASCADE)
+	attendeeds = models.ManyToManyField('user.Employee', verbose_name="Participantes", blank=True)	
+	start_class = models.TimeField(verbose_name='Início do treinamento', null=True, blank=True)
+	end_class = models.TimeField(verbose_name='Termino do treinamento', null=True, blank=True)
+	conclude = models.BooleanField(default=False, verbose_name='Registro Concluido')
+
+	class Meta:
+		verbose_name = 'Registro de Treino'
+		verbose_name_plural = 'Registros de Treino'
+
 
 class Association(models.Model):
 	name = models.CharField(max_length=75)	
