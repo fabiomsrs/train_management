@@ -3,7 +3,7 @@ from django.contrib.admin import widgets
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from .models import Association, PreparationClass, Location
-from .forms import AssociationForm, LocationForm
+from .forms import AssociationForm, LocationForm, PreparationClassForm
 from user.models import Employee
 # Register your models here.
 
@@ -41,6 +41,12 @@ class PreparationClassAdmin(admin.ModelAdmin):
 	list_display = ('pk','title','coach','date','time','duration','location','association','description')
 	list_display_links = ('pk',)
 	list_per_page = 20
+	form = PreparationClassForm
+
+	def get_form(self, request, *args, **kwargs):
+		 form = super(PreparationClassAdmin, self).get_form(request, *args, **kwargs)
+		 form.user = request.user
+		 return form
 
 	def formfield_for_foreignkey(self, db_field, request, **kwargs):
 		if db_field.name == 'coach' and not request.user.is_superuser:

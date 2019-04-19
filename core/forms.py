@@ -1,5 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.db.models import F, Q
+from datetime import timedelta
+import datetime as dt
 from .models import Association, PreparationClass, Location
 
 
@@ -29,17 +32,41 @@ class LocationForm(forms.ModelForm):
 			return cleaned_data
 
 
-# class PreparationClassForm(forms.ModelForm):
-# 	def __init__(self, request, *args, **kwargs):		
-# 		print(request)
-				
-# 		user = request.GET.get('user')
-# 		if not user.is_superuser:
-# 			self.fields['association'].queryset = Association.objects.filter(admin=user)
+class PreparationClassForm(forms.ModelForm):
 
-# 		super(PreparationClassForm, self).__init__(*args, **kwargs)		
+	def clean(self):
+			cleaned_data = self.cleaned_data					
+			location = cleaned_data.get('location')		
+			association = cleaned_data.get('association')		
+			
+			if not self.user.is_superuser:
+				association = self.user.employee.association.name
 
-# 	class Meta:
-# 		model = PreparationClass
-# 		fields = '__all__'
+			date = cleaned_data.get('date')		
+			time = cleaned_data.get('time')		
+			duration = cleaned_data.get('duration')				
+
+			print(association,location)
+
+			preparation_classes = PreparationClass.objects.filter(location__name=location, association__name=association, date=date)
+			print(preparation_classes)
+			for preparation_classe in preparation_classes:
+				end = (dt.datetime.combine(dt.date(1,1,1),preparation_classe.time) + timedelta(minutes=preparation_classe.duration)).time()
+				end_2 = (dt.datetime.combine(dt.date(1,1,1),time) + timedelta(minutes=duration)).time()
+				start = preparation_classe.time
+				start_2 = time
+				print(start, start_2, end, end_2)
+
+				if end >= start_2 and start <= start_2:
+					raise forms.ValidationError({'time':_('Existe um treinamento cadastrado no local ' + location.name + ' por volta da hora ' + str(time))})			
+				elif end_2 >= start and start_2 <= start:
+					raise forms.ValidationError({'time':_('Existe um treinamento cadastrado no local ' + location.name + ' por volta da hora ' + str(time))})			
+				elif start_2 >= start and start_2 <= end:
+					raise forms.ValidationError({'time':_('Existe um treinamento cadastrado no local ' + location.name + ' por volta da hora ' + str(time))})			
+
+			return cleaned_data
+	
+	class Meta:
+		model = PreparationClass
+		fields = '__all__'
 # 		
