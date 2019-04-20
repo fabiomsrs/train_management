@@ -59,6 +59,9 @@ class PreparationClassAdmin(admin.ModelAdmin):
 			kwargs["queryset"] = Employee.objects.filter(association=request.user.employee.association)
 		if db_field.name == 'association' and not request.user.is_superuser:
 			kwargs["queryset"] = Association.objects.filter(name=request.user.employee.association.name)
+		if db_field.name == 'location' and not request.user.is_superuser:
+			kwargs["queryset"] = Location.objects.filter(association=request.user.employee.association)
+
 		return super().formfield_for_foreignkey(db_field, request, **kwargs)
 		
 	def formfield_for_manytomany(self, db_field, request, **kwargs):
