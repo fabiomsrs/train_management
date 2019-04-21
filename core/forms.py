@@ -41,10 +41,10 @@ class PreparationClassForm(forms.ModelForm):
 			coach = cleaned_data.get('coach')
 			if not self.user.is_superuser:
 				association = self.user.employee.association.name
-			if not Location.objects.get(name=location.name).association == association:
-				raise forms.ValidationError({'location':_('Local ' + location.name + ' não existe na associação ' + association.name)})
-			if not coach.association == association:
-				raise forms.ValidationError({'coach':_('Tutor ' + coach.username + ' não existe na associação ' + association.name)})
+			if not Location.objects.get(name=location.name).association.name == association:												
+				raise forms.ValidationError({'location':_('Local ' + str(location) + ' não existe na associação ' + str(association))})
+			if coach and not coach.association == association:
+				raise forms.ValidationError({'coach':_('Tutor ' + str(coach) + ' não existe na associação ' + str(association))})
 
 			date = cleaned_data.get('date')		
 			time = cleaned_data.get('time')		
@@ -52,9 +52,9 @@ class PreparationClassForm(forms.ModelForm):
 
 			preparation_classes = ""
 			if self.instance.id:
-				preparation_classes = PreparationClass.objects.filter(location=location, association=association, date=date).exclude(pk=self.instance.id)
+				preparation_classes = PreparationClass.objects.filter(location__name=location, association__name=association, date=date).exclude(pk=self.instance.id)
 			else:
-				preparation_classes = PreparationClass.objects.filter(location=location, association=association, date=date)
+				preparation_classes = PreparationClass.objects.filter(location__name=location, association__name=association, date=date)
 
 			for preparation_classe in preparation_classes:				
 				end = (dt.datetime.combine(dt.date(1,1,1),preparation_classe.time) + timedelta(minutes=preparation_classe.duration)).time()
@@ -64,11 +64,11 @@ class PreparationClassForm(forms.ModelForm):
 				print(start, start_2, end, end_2)
 
 				if end >= start_2 and start <= start_2:
-					raise forms.ValidationError({'time':_('Existe um treinamento cadastrado no local ' + location.name + '  no horario ' + str(start))})			
+					raise forms.ValidationError({'time':_('Existe um treinamento cadastrado no local ' + str(location) + '  no horario ' + str(start))})			
 				elif end_2 >= start and start_2 <= start:
-					raise forms.ValidationError({'time':_('Existe um treinamento cadastrado no local ' + location.name + ' no horario ' + str(start))})			
+					raise forms.ValidationError({'time':_('Existe um treinamento cadastrado no local ' + str(location) + ' no horario ' + str(start))})			
 				elif start_2 >= start and start_2 <= end:
-					raise forms.ValidationError({'time':_('Existe um treinamento cadastrado no local ' + location.name + ' no horario ' + str(start))})			
+					raise forms.ValidationError({'time':_('Existe um treinamento cadastrado no local ' + str(location) + ' no horario ' + str(start))})			
 
 			return cleaned_data
 	

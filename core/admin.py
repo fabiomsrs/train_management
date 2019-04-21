@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.admin import widgets
 from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import Group
+from django.http import HttpResponseRedirect
+from django.utils import timezone
 from django.db.models import Q
 from .forms import AssociationForm, LocationForm, PreparationClassForm
 from .models import Association, PreparationClass, Location, ClassRegister
@@ -129,9 +131,39 @@ class PreparationClassAdmin(admin.ModelAdmin):
 
 @admin.register(ClassRegister)
 class ClassRegisterAdmin(admin.ModelAdmin):	    
-	list_display = ('preparation_class','start_class','end_class','conclude')    
-	# list_display_links = ('name',)    
+	list_display = ('preparation_class','start_class','end_class','conclude')    	
 	list_per_page = 20
+	change_form_template = "admin/change_register_form.html"
+
+	def change_view(self, request, object_id, form_url='', extra_context=None):
+		class_register = ClassRegister.objects.get(pk=object_id)
+		conclude = class_register.conclude
+		start_class = class_register.start_class
+		extra_context = extra_context or {}
+		extra_context['conclude'] = conclude
+		extra_context['start_class'] = start_class
+		return super().change_view(
+			request, object_id, form_url, extra_context=extra_context,
+		)
+	def response_change(self, request, obj):	
+		if "start" in request.POST:
+			print(request.POST)
+			class_register = ClassRegister.objects.get(pk=obj.pk)
+			class_register.attendeeds.set(obj.attendeeds.all())
+			class_register.start_class = timezone.now()
+			class_register.save()
+			self.message_user(request, "Treinamento Iniciado")
+			return HttpResponseRedirect(".")
+
+		if "finish" in request.POST:			
+			class_register = ClassRegister.objects.get(pk=obj.pk)
+			class_register.attendeeds.set(obj.attendeeds.all())
+			class_register.end_class = timezone.now()
+			class_register.conclude = True
+			class_register.save()
+			self.message_user(request, "Treinamento Finalizado")
+			return HttpResponseRedirect(".")
+		return super().response_change(request, obj)
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)		
@@ -147,11 +179,11 @@ class ClassRegisterAdmin(admin.ModelAdmin):
 				return False
 			return True
 			
-	def get_fields(self, request, obj):		
-		return ('preparation_class','attendeeds','start_class','end_class','conclude')
+	def get_fields(self, request, obj):				
+		return ('preparation_class','attendeeds','conclude')
 	
 	def get_readonly_fields(self, request, obj):						
-		return self.readonly_fields + ('preparation_class',)
+		return self.readonly_fields + ('preparation_class','conclude',)
 
 	def formfield_for_manytomany(self, db_field, request, **kwargs):
 		x = re.findall("\\d", request.get_full_path_info())		
