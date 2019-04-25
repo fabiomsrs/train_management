@@ -65,8 +65,20 @@ class Location(models.Model):
 	association = models.ForeignKey('Association', verbose_name='Unidade', related_name='my_locations', on_delete=models.CASCADE)
 
 	def __str__(self):
-		return self.name
+		return self.name + " " + self.association.name
 
 	class Meta:
 		verbose_name = 'Local'
 		verbose_name_plural = 'Locais'
+
+
+class Avaliation(models.Model):
+	preparation_class = models.ForeignKey('PreparationClass', verbose_name="Treinamento", on_delete=models.CASCADE)
+	frequency = models.FileField()
+	survey = models.FileField()
+	avaliation = models.FileField()
+	grades = models.FileField()
+
+	class Meta:
+		verbose_name = 'Avaliação'
+		verbose_name_plural = 'Avaliações'

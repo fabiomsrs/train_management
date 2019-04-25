@@ -23,13 +23,13 @@ class LocationForm(forms.ModelForm):
 		model = Location
 		fields = '__all__'
 
-		def clean(self):
-			cleaned_data = self.cleaned_data					
-			name = cleaned_data.get('name')		
-			association = cleaned_data.get('association')		
-			if Location.objects.filter(name=name, association=association):
-				raise forms.ValidationError({'name':_('Já existe um local cadastrado com o nome ' + name + ' na entidade ' + association)})
-			return cleaned_data
+	def clean(self):
+		cleaned_data = self.cleaned_data					
+		name = cleaned_data.get('name')		
+		association = cleaned_data.get('association')			
+		if Location.objects.filter(name=name, association=association):
+			raise forms.ValidationError({'name':_('Já existe um local cadastrado com o nome ' + name + ' na entidade ' + association.name)})
+		return cleaned_data
 
 
 class PreparationClassForm(forms.ModelForm):
@@ -41,7 +41,7 @@ class PreparationClassForm(forms.ModelForm):
 			coach = cleaned_data.get('coach')
 			if not self.user.is_superuser:
 				association = self.user.employee.association.name
-			if not Location.objects.get(name=location.name).association.name == association:												
+			if not location.association == association:												
 				raise forms.ValidationError({'location':_('Local ' + str(location) + ' não existe na associação ' + str(association))})
 			if coach and not coach.association == association:
 				raise forms.ValidationError({'coach':_('Tutor ' + str(coach) + ' não existe na associação ' + str(association))})

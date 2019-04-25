@@ -6,12 +6,43 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.db.models import Q
 from .forms import AssociationForm, LocationForm, PreparationClassForm
-from .models import Association, PreparationClass, Location, ClassRegister
+from .models import Association, PreparationClass, Location, ClassRegister, Avaliation
 from user.models import Employee
 import re
 # Register your models here.
 
 admin.site.unregister(Group)
+
+@admin.register(Avaliation)
+class AvaliationAdmin(admin.ModelAdmin):
+	def has_change_permission(self, request, obj=None):
+		if obj:
+			if request.user.pk == obj.preparation_class.coach.pk or request.user.is_superuser:
+				return True
+		return False
+
+	def has_add_permission(self, request, obj=None):
+		if request.user.is_superuser:
+			return True
+		elif request.user.employee.my_classes.count() > 0:			
+			return True
+		return False
+
+	def has_view_permission(self, request, obj=None):
+		if obj:
+			if request.user.pk == obj.preparation_class.coach.pk or request.user.is_superuser:
+				return True
+		return False		
+
+	def has_delete_permission(self, request, obj=None):
+		if obj:
+			if request.user.pk == obj.preparation_class.coach.pk or request.user.is_superuser:
+				return True
+		return False		
+
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):
+		if db_field.name == 'preparation_class' and not request.user.is_superuser:
+			kwargs["queryset"] = PreparationClass.objects.filter(coach=request.user.employee)
 
 @admin.register(Association)
 class AssociationAdmin(admin.ModelAdmin):	
@@ -67,7 +98,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 		return super().formfield_for_foreignkey(db_field, request, **kwargs)
 		
 	def formfield_for_manytomany(self, db_field, request, **kwargs):
-		vertical = False  # change to True if you prefer boxes to be stacked vertically
+		vertical = False  # change to True if you prefer boxes to be stacked vertically		
 		kwargs['widget'] = widgets.FilteredSelectMultiple(
 			db_field.verbose_name,
 			vertical,
