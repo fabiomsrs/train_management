@@ -73,11 +73,11 @@ class Location(models.Model):
 
 
 class Avaliation(models.Model):
-	preparation_class = models.ForeignKey('PreparationClass', verbose_name="Treinamento", on_delete=models.CASCADE)
-	frequency = models.FileField()
-	survey = models.FileField()
-	avaliation = models.FileField()
-	grades = models.FileField()
+	preparation_class = models.OneToOneField('PreparationClass', related_name='my_avaliation', verbose_name="Treinamento", on_delete=models.CASCADE)
+	frequency = models.FileField(verbose_name='frequencia')
+	survey = models.FileField(verbose_name='pesquisa')
+	avaliation = models.FileField(verbose_name='avaliação')
+	grades = models.FileField(verbose_name='notas')
 
 	class Meta:
 		verbose_name = 'Avaliação'

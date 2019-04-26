@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.db.models import Q
-from .forms import AssociationForm, LocationForm, PreparationClassForm
+from .forms import AssociationForm, LocationForm, PreparationClassForm, AvaliationForm
 from .models import Association, PreparationClass, Location, ClassRegister, Avaliation
 from user.models import Employee
 import re
@@ -15,6 +15,8 @@ admin.site.unregister(Group)
 
 @admin.register(Avaliation)
 class AvaliationAdmin(admin.ModelAdmin):
+	form = AvaliationForm
+
 	def has_change_permission(self, request, obj=None):
 		if obj:
 			if request.user.pk == obj.preparation_class.coach.pk or request.user.is_superuser:
@@ -40,9 +42,15 @@ class AvaliationAdmin(admin.ModelAdmin):
 				return True
 		return False		
 
-	def formfield_for_foreignkey(self, db_field, request, **kwargs):
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):		
 		if db_field.name == 'preparation_class' and not request.user.is_superuser:
 			kwargs["queryset"] = PreparationClass.objects.filter(coach=request.user.employee)
+		if request.user.is_superuser:
+			kwargs["queryset"] = PreparationClass.objects.all()
+		return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+	def get_fields(self, request, obj):		
+		return ('preparation_class', 'frequency', 'survey', 'avaliation', 'grades')
 
 @admin.register(Association)
 class AssociationAdmin(admin.ModelAdmin):	

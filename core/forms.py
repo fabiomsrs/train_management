@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models import F, Q
 from datetime import timedelta
 import datetime as dt
-from .models import Association, PreparationClass, Location
+from .models import Association, PreparationClass, Location, Avaliation
 
 
 class AssociationForm(forms.ModelForm):
@@ -32,6 +32,12 @@ class LocationForm(forms.ModelForm):
 		return cleaned_data
 
 
+class AvaliationForm(forms.ModelForm):
+	class Meta:
+		models = Avaliation
+		fields = '__all__'
+
+		
 class PreparationClassForm(forms.ModelForm):
 
 	def clean(self):
@@ -40,7 +46,7 @@ class PreparationClassForm(forms.ModelForm):
 			association = cleaned_data.get('association')		
 			coach = cleaned_data.get('coach')
 			if not self.user.is_superuser:
-				association = self.user.employee.association.name
+				association = self.user.employee.association
 			if not location.association == association:												
 				raise forms.ValidationError({'location':_('Local ' + str(location) + ' não existe na associação ' + str(association))})
 			if coach and not coach.association == association:
