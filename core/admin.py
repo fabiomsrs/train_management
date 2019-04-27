@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.db.models import Q
 from .forms import AssociationForm, LocationForm, PreparationClassForm, AvaliationForm
 from .models import Association, PreparationClass, Location, ClassRegister, Avaliation
+from .utils import LocationFilter, CoachFilter
 from user.models import Employee
 import re
 # Register your models here.
@@ -92,6 +93,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 	search_fields = ['pk','title']
 	list_display = ('pk','title','coach','date','time','duration','location','association','description')
 	list_display_links = ('pk',)
+	list_filter = (LocationFilter, CoachFilter,'date',)	
 	list_per_page = 20
 	form = PreparationClassForm
 
