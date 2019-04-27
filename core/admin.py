@@ -81,6 +81,11 @@ class LocationAdmin(admin.ModelAdmin):
 			return self.readonly_fields + ('association',)			
 		return self.readonly_fields
 
+	def save_model(self, request, obj, form, change):
+		if not request.user.is_superuser:
+			obj.association = request.user.employee.association
+		super(LocationAdmin, self).save_model(request, obj, form, change)
+
 
 @admin.register(PreparationClass)
 class PreparationClassAdmin(admin.ModelAdmin):	
@@ -110,7 +115,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 		kwargs['widget'] = widgets.FilteredSelectMultiple(
 			db_field.verbose_name,
 			vertical,
-		)
+		)		
 		if db_field.name == 'employees' and not request.user.is_superuser:
 			kwargs["queryset"] = Employee.objects.filter(association=request.user.employee.association)
 		return super(PreparationClassAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)

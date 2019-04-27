@@ -58,9 +58,9 @@ class PreparationClassForm(forms.ModelForm):
 
 			preparation_classes = ""
 			if self.instance.id:
-				preparation_classes = PreparationClass.objects.filter(location__name=location, association__name=association, date=date).exclude(pk=self.instance.id)
+				preparation_classes = PreparationClass.objects.filter(location=location, association__name=association, date=date).exclude(pk=self.instance.id)
 			else:
-				preparation_classes = PreparationClass.objects.filter(location__name=location, association__name=association, date=date)
+				preparation_classes = PreparationClass.objects.filter(location=location, association__name=association, date=date)
 
 			for preparation_classe in preparation_classes:				
 				end = (dt.datetime.combine(dt.date(1,1,1),preparation_classe.time) + timedelta(minutes=preparation_classe.duration)).time()
