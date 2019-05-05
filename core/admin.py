@@ -2,17 +2,53 @@ from django.contrib import admin
 from django.contrib.admin import widgets
 from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import Group
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import timezone
 from django.db.models import Q
 from .forms import AssociationForm, LocationForm, PreparationClassForm, AvaliationForm
 from .models import Association, PreparationClass, Location, ClassRegister, Avaliation
 from .utils import LocationFilter, CoachFilter
 from user.models import Employee
+from datetime import datetime
 import re
+import csv
+import xlwt
 # Register your models here.
 
 admin.site.unregister(Group)
+
+def export_csv(modeladmin, request, queryset):
+	response = HttpResponse(content_type='application/ms-excel')
+	response['Content-Disposition'] = 'attachment; filename="treinamentos.xls"'
+
+	wb = xlwt.Workbook(encoding='utf-8')
+	ws = wb.add_sheet('Treinamentos')
+
+	# Sheet header, first row
+	row_num = 0
+
+	font_style = xlwt.XFStyle()
+	font_style.font.bold = True
+
+	columns = ['COD','NOME DO TREINAMENTO','DESCRICAO','UNIDADE','LOCAL','DATA PROGRAMADA','HORARIO PROGRAMADO','DURACAO PROGRAMADA','DATA REGISTRO','HORARIO INICIADO','HORARIO FIALIZADO','NOME PARTICIPANTE','CARGO','PRESENTE','STATUS']
+
+	for col_num in range(len(columns)):
+		ws.write(row_num, col_num, columns[col_num], font_style)
+
+	for preparation_class in queryset:
+		for employee in preparation_class.employees.all():
+			row_num += 1
+			present = 'Não'
+			conclude = 'não finalizado'
+			if employee in preparation_class.my_register.attendeeds.all():
+				present = 'Sim'
+			if preparation_class.my_register:
+				conclude = 'finalizado'
+			row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, preparation_class.my_register.date.strftime('%d/%m/%Y'), preparation_class.my_register.start_class.strftime('%H:%M'), preparation_class.my_register.end_class.strftime('%H:%M'), employee.first_name, employee.position.name, present, conclude]
+			for col_num in range(len(row)):
+				ws.write(row_num,col_num,row[col_num], font_style)
+	wb.save(response)
+	return response
 
 @admin.register(Avaliation)
 class AvaliationAdmin(admin.ModelAdmin):
@@ -91,11 +127,17 @@ class LocationAdmin(admin.ModelAdmin):
 @admin.register(PreparationClass)
 class PreparationClassAdmin(admin.ModelAdmin):	
 	search_fields = ['pk','title']
-	list_display = ('pk','title','coach','date','time','duration','location','association','description')
+	list_display = ('pk','title','coach','date','time','duration','location','association','description','status')
 	list_display_links = ('pk',)
 	list_filter = (LocationFilter, CoachFilter,'date',)	
 	list_per_page = 20
+	actions = [export_csv]
 	form = PreparationClassForm
+
+	def status(self, obj):
+		if obj.my_register.conclude:
+			return 'Finalizado'
+		return 'Não finalizado'
 
 	def get_form(self, request, *args, **kwargs):
 		 form = super(PreparationClassAdmin, self).get_form(request, *args, **kwargs)
@@ -205,6 +247,7 @@ class ClassRegisterAdmin(admin.ModelAdmin):
 			class_register = ClassRegister.objects.get(pk=obj.pk)
 			class_register.attendeeds.set(obj.attendeeds.all())
 			class_register.end_class = timezone.now()
+			class_register.date = datetime.now().date
 			class_register.conclude = True
 			class_register.save()
 			self.message_user(request, "Treinamento Finalizado")

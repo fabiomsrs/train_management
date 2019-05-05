@@ -37,8 +37,9 @@ class PreparationClass(models.Model):
 		
 
 class ClassRegister(models.Model):
-	preparation_class = models.OneToOneField('PreparationClass', verbose_name='Registro do treinamento', on_delete=models.CASCADE)
-	attendeeds = models.ManyToManyField('user.Employee', verbose_name="Participantes", blank=True)	
+	preparation_class = models.OneToOneField('PreparationClass', verbose_name='Registro do treinamento', related_name='my_register', on_delete=models.CASCADE)
+	attendeeds = models.ManyToManyField('user.Employee', verbose_name="Participantes", blank=True)
+	date = models.DateField(verbose_name='Dia do registro', null=True, blank=True)	
 	start_class = models.TimeField(verbose_name='Início do treinamento', null=True, blank=True)
 	end_class = models.TimeField(verbose_name='Termino do treinamento', null=True, blank=True)
 	conclude = models.BooleanField(default=False, verbose_name='Registro Concluido')
