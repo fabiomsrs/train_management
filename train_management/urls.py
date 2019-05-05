@@ -16,8 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-admin.site.site_header = 'Sistema Gerenciamento de treinamentos'
-admin.site.site_title = 'Gerenciamento de treinamentos'
+admin.site.site_header = 'Trainer'
+admin.site.site_title = 'Trainer'
 
 urlpatterns = [
     path('', admin.site.urls),
