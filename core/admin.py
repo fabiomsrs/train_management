@@ -224,8 +224,8 @@ class ClassRegisterAdmin(admin.ModelAdmin):
 	change_form_template = "admin/change_register_form.html"
 
 	def change_view(self, request, object_id, form_url='', extra_context=None):
-		class_register = ClassRegister.objects.get(pk=object_id)
-		conclude = class_register.conclude
+		class_register = ClassRegister.objects.get(pk=object_id)		
+		conclude = class_register.conclude		
 		start_class = class_register.start_class
 		extra_context = extra_context or {}
 		extra_context['conclude'] = conclude
@@ -247,7 +247,7 @@ class ClassRegisterAdmin(admin.ModelAdmin):
 			class_register = ClassRegister.objects.get(pk=obj.pk)
 			class_register.attendeeds.set(obj.attendeeds.all())
 			class_register.end_class = timezone.now()
-			class_register.date = datetime.now().date
+			class_register.date = datetime.today().date()
 			class_register.conclude = True
 			class_register.save()
 			self.message_user(request, "Treinamento Finalizado")
