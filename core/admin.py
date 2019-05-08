@@ -36,15 +36,22 @@ def export_csv(modeladmin, request, queryset):
 		ws.write(row_num, col_num, columns[col_num], font_style)
 
 	for preparation_class in queryset:
-		for employee in preparation_class.employees.all():
+		for employee in Employee.objects.filter(Q(my_preparations_classes=preparation_class) | Q(position__my_preparations_classes=preparation_class) & Q(association=preparation_class.association)).exclude(pk=preparation_class.coach.pk):
 			row_num += 1
 			present = 'Não'
 			conclude = 'não finalizado'
+			end_class = ""
+			start_class = ""
+			date = ""
 			if employee in preparation_class.my_register.attendeeds.all():
 				present = 'Sim'
-			if preparation_class.my_register:
+			if preparation_class.my_register.conclude:
 				conclude = 'finalizado'
-			row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, preparation_class.my_register.date.strftime('%d/%m/%Y'), preparation_class.my_register.start_class.strftime('%H:%M'), preparation_class.my_register.end_class.strftime('%H:%M'), employee.first_name, employee.position.name, present, conclude]
+				end_class = preparation_class.my_register.end_class.strftime('%H:%M')
+				start_class = preparation_class.my_register.start_class.strftime('%H:%M')
+				date = preparation_class.my_register.date.strftime('%d/%m/%Y')
+			
+			row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, date, start_class, end_class, employee.first_name, employee.position.name, present, conclude]
 			for col_num in range(len(row)):
 				ws.write(row_num,col_num,row[col_num], font_style)
 	wb.save(response)

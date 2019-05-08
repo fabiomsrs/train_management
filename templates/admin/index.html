@@ -49,7 +49,7 @@
             </div>
         {% endfor %}
     {% else %}
-    {% if user.employee.my_preparations_classes.all %}
+    {% if user.employee.my_next_preparation_classes %}
         <div class="module">
             <table>        
                 <caption>
@@ -61,7 +61,7 @@
                     <th scope="row">Data</th>            
                     <th scope="row">Hora</th>                                                                    
                 </tr>
-                {% for class in user.employee.my_preparations_classes.all %}                
+                {% for class in user.employee.my_next_preparation_classes %}                
                     <tr>
                         <td> <a href="/core/preparationclass/{{class.pk}}/change/">{{class.title}}</a></td>
                         <td> {{class.coach.first_name}} </td>
@@ -74,7 +74,7 @@
     {% else %}
         Nenhum treinamento para assistir <br><br>
     {% endif %}    
-    {% if user.employee.my_classes.all %}
+    {% if user.employee.my_next_classes %}
         <div class="module">
             <table>        
                 <caption>
@@ -86,7 +86,7 @@
                     <th scope="row">Data</th>            
                     <th scope="row">Hora</th>                                                                    
                 </tr>
-            {% for class in user.employee.my_classes.all %} 
+            {% for class in user.employee.my_next_classes %} 
                 <tr>               
                     <td> <a href="/core/preparationclass/{{class.pk}}/change/">{{class.title}}</a></td>
                     <td> {{class.coach.first_name}} </td>

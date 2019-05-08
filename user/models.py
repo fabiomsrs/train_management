@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import AbstractUser, Permission
 from django.contrib.contenttypes.models import ContentType
+from datetime import datetime
 # Create your models here.
 
 
@@ -20,6 +21,14 @@ class Employee(CustomUser):
 		is_staff.verbose_name = 'Administrador'
 		is_staff.help_text = 'Indica que o usuário é administrador de uma unidade'		
 		super(Employee, self).__init__(*args, **kwargs)
+	
+	@property
+	def my_next_preparation_classes(self):
+		return self.my_preparations_classes.filter(date__gte=datetime.today().date(), my_register__conclude=False)
+
+	@property	
+	def my_next_classes(self):
+		return self.my_classes.filter(date__gte=datetime.today().date(), my_register__conclude=False)
 
 	def save(self, *args, **kwargs):			
 		if not self.password.startswith('pbkdf2'):
