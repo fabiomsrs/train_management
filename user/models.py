@@ -24,7 +24,8 @@ class Employee(CustomUser):
 	
 	@property
 	def my_next_preparation_classes(self):
-		return self.my_preparations_classes.filter(date__gte=datetime.today().date(), my_register__conclude=False)
+		from core.models import PreparationClass
+		return PreparationClass.objects.filter(Q( employees__pk=self.pk) | Q(positions=self.position)).filter(date__gte=datetime.today().date(), my_register__conclude=False)
 
 	@property	
 	def my_next_classes(self):

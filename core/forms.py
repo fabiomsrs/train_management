@@ -36,6 +36,17 @@ class AvaliationForm(forms.ModelForm):
 	class Meta:
 		models = Avaliation
 		fields = '__all__'
+	
+	def clean(self):
+		cleaned_data = self.cleaned_data					
+		preparation_class = cleaned_data.get('preparation_class')
+		avaliation = cleaned_data.get('avaliation')
+		grades = cleaned_data.get('grades')
+		if preparation_class.duration > 60 and avaliation == None:
+			raise forms.ValidationError({'avaliation':_('Treinamentos acima de 60 minutos exigem as postagem das notas e avaliação')})
+		if preparation_class.duration > 60 or grades == None:
+			raise forms.ValidationError({'grades':_('Treinamentos acima de 60 minutos exigem as postagem das notas e avaliação')})
+		return cleaned_data
 
 		
 class PreparationClassForm(forms.ModelForm):

@@ -77,8 +77,8 @@ class Avaliation(models.Model):
 	preparation_class = models.OneToOneField('PreparationClass', related_name='my_avaliation', verbose_name="Treinamento", on_delete=models.CASCADE)
 	frequency = models.FileField(verbose_name='frequencia')
 	survey = models.FileField(verbose_name='pesquisa')
-	avaliation = models.FileField(verbose_name='avaliação')
-	grades = models.FileField(verbose_name='notas')
+	avaliation = models.FileField(verbose_name='avaliação', blank=True, null=True)
+	grades = models.FileField(verbose_name='notas', blank=True, null=True)
 
 	class Meta:
 		verbose_name = 'Avaliação'

@@ -60,6 +60,9 @@ def export_csv(modeladmin, request, queryset):
 @admin.register(Avaliation)
 class AvaliationAdmin(admin.ModelAdmin):
 	form = AvaliationForm
+	search_fields = ['preparation_class']
+	list_display = ('preparation_class',)    
+	list_display_links = ('preparation_class',)
 
 	def has_change_permission(self, request, obj=None):
 		if obj:
@@ -74,11 +77,10 @@ class AvaliationAdmin(admin.ModelAdmin):
 			return True
 		return False
 
-	def has_view_permission(self, request, obj=None):
-		if obj:
-			if request.user.pk == obj.preparation_class.coach.pk or request.user.is_superuser:
-				return True
-		return False		
+	def has_view_permission(self, request, obj=None):		
+		if request.user.is_superuser or request.user.employee.my_classes.count():
+			return True
+			
 
 	def has_delete_permission(self, request, obj=None):
 		if obj:
@@ -95,6 +97,10 @@ class AvaliationAdmin(admin.ModelAdmin):
 
 	def get_fields(self, request, obj):		
 		return ('preparation_class', 'frequency', 'survey', 'avaliation', 'grades')
+	
+	def get_queryset(self, request):
+		qs = super().get_queryset(request)
+		return qs.filter(preparation_class__coach__pk=request.user.pk)
 
 @admin.register(Association)
 class AssociationAdmin(admin.ModelAdmin):	
@@ -202,7 +208,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 		if not request.user.is_superuser:
 			if request.user.employee.has_staff_perm:
 				return qs.filter(association=request.user.employee.association)			
-			return qs.filter(Q(employees__id=request.user.pk) | Q(coach=request.user.pk) | Q(positions__id=request.user.employee.position.pk, association=request.user.employee.association)).distinct()
+			return qs.filter(Q(employees__id=request.user.pk) | Q(coach__pk=request.user.pk) | Q(positions__id=request.user.employee.position.pk, association=request.user.employee.association)).distinct()
 		return qs
 
 	def get_readonly_fields(self, request, obj):				
