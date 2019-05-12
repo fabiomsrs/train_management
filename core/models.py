@@ -79,7 +79,9 @@ class Avaliation(models.Model):
 	survey = models.FileField(verbose_name='pesquisa')
 	avaliation = models.FileField(verbose_name='avaliação', blank=True, null=True)
 	grades = models.FileField(verbose_name='notas', blank=True, null=True)
+	created_at = models.DateTimeField(auto_now=True, editable=False, verbose_name='data de inclusão')
+	created_by = models.ForeignKey('user.CustomUser', editable=False, verbose_name='incluido por' , on_delete=models.CASCADE)
 
 	class Meta:
 		verbose_name = 'Avaliação'
-		verbose_name_plural = 'Avaliações'
+		verbose_name_plural = 'Avaliações'		

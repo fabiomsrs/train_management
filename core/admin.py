@@ -61,8 +61,11 @@ def export_csv(modeladmin, request, queryset):
 class AvaliationAdmin(admin.ModelAdmin):
 	form = AvaliationForm
 	search_fields = ['preparation_class__title']
-	list_display = ('preparation_class',)    
+	list_display = ('preparation_class','created_at','created_by','unidade')    
 	list_display_links = ('preparation_class',)
+
+	def unidade(self, obj):
+		return obj.preparation_class.association.name
 
 	def has_change_permission(self, request, obj=None):
 		if obj:
@@ -101,6 +104,10 @@ class AvaliationAdmin(admin.ModelAdmin):
 		if request.user.is_superuser or request.user.employee.has_staff_perm:
 			return qs.all()
 		return qs.filter(Q(preparation_class__coach__pk=request.user.pk) | Q(preparation_class__employees__pk=request.user.pk) | (Q(preparation_class__positions__pk=request.user.employee.position.pk) & Q(preparation_class__association=request.user.employee.association)))
+
+	def save_model(self, request, obj, form, change):		
+		obj.created_by = request.user
+		super(AvaliationAdmin, self).save_model(request, obj, form, change)
 
 @admin.register(Association)
 class AssociationAdmin(admin.ModelAdmin):	
