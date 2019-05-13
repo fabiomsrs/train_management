@@ -30,7 +30,14 @@ for preparation_class in PreparationClass.objects.filter(date__gte=datetime.toda
         print("sending email to " + employee.first_name + " email: " + employee.email)                
         send_mail(
             'Treinamento para assistir',
-            'Olá ' + employee.first_name + ", você tem um treinamento para assistir em " + str(preparation_class.date.strftime('%d %B %Y')) + " às " + str(preparation_class.time) +" administrado pelo instrutor " + preparation_class.coach.first_name + "." ,
+            'Olá ' + employee.first_name + ",\n\nVocê tem um treinamento para assistir.\n\n"
+                +"Nome do treinamento: " + preparation_class.title + "\n"
+                +"Dia: " + str(preparation_class.date.strftime('%d %B %Y')) + "\n"
+                +"Hora: " + str(preparation_class.time) +"\n"
+                +"Local: "+ preparation_class.location.name +"\n"
+                +"Unidade: " + preparation_class.association.name +"\n"
+                +"Instrutor: " + preparation_class.coach.first_name
+                +"\n\n\nemail automático, favor não responder.",
             EMAIL_HOST_USER,
             [employee.email],
             fail_silently=False,
@@ -38,7 +45,13 @@ for preparation_class in PreparationClass.objects.filter(date__gte=datetime.toda
     coach = preparation_class.coach
     send_mail(
         'Treinamento para administrar',
-        'Olá ' + coach.first_name + ", você tem um treinamento para administrar em " + str(preparation_class.date.strftime('%d %B %Y')) + " às " + str(preparation_class.time) + "." ,
+        'Olá ' + coach.first_name + ","
+        "\n\nVocê tem um treinamento para administrar.\n\n"
+        +"Dia: " + str(preparation_class.date.strftime('%d %B %Y')) + "\n"
+        +"Hora: " + str(preparation_class.time) +"\n"
+        +"Local: "+ preparation_class.location.name +"\n"
+        +"Unidade: " + preparation_class.association.name +"\n"
+        +"\n\n\nemail automático, favor não responder.",
         EMAIL_HOST_USER,
         [coach.email],
         fail_silently=False,
