@@ -25,7 +25,7 @@ SECRET_KEY = '1g6=up%7dcmd@+_@0no_hsv4x(un!y7(k(u^2_l&g(!odav3*3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', '.sistrainer.net.br', '191.252.111.179']
 
 AUTH_USER_MODEL = 'user.CustomUser'
 # Application definition
@@ -83,15 +83,16 @@ WSGI_APPLICATION = 'train_management.wsgi.application'
 # }
 
 DATABASES = {
-    'default': {
+     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'teste',
+        'NAME': 'trainer2',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'PASSWORD': '@@trainer#',
         'HOST': 'localhost',
         'PORT': '5432',
         'CHARSET':'UTF8'
     }
+
 }
 
 # Password validation
@@ -124,12 +125,12 @@ EMAIL_USE_TLS = True
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
 LANGUAGE_CODE = 'pt-br'
-TIME_ZONE = 'UTC'
+#TIME_ZONE = 'UTC'
 TIME_ZONE_LOCAL = 'America/Sao_Paulo'
 
 USE_I18N = True
 USE_L10N = True
-USE_TZ = False
+USE_TZ = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -137,6 +138,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "/static/")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static")
 ]
