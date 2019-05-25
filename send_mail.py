@@ -19,7 +19,7 @@ import locale
 
 
 try: 
-    locale.setlocale(locale.LC_ALL, 'pt_BR') 
+    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8') 
 except: 
     locale.setlocale(locale.LC_ALL, 'Portuguese_Brazil') 
     
