@@ -30,7 +30,7 @@ def export_csv(modeladmin, request, queryset):
 	font_style = xlwt.XFStyle()
 	font_style.font.bold = False
 
-	columns = ['COD','NOME DO TREINAMENTO','DESCRICAO','UNIDADE','LOCAL','DATA PROGRAMADA','HORARIO PROGRAMADO','DURACAO PROGRAMADA','DATA REGISTRO','HORARIO INICIADO','HORARIO FINALIZADO','NOME PARTICIPANTE','CARGO','PRESENTE','STATUS']
+	columns = ['COD','NOME DO TREINAMENTO','DESCRICAO','UNIDADE','LOCAL','TUTOR','DATA PROGRAMADA','HORARIO PROGRAMADO','DURACAO PROGRAMADA','DATA REGISTRO','HORARIO INICIADO','HORARIO FINALIZADO','NOME PARTICIPANTE','CARGO','PRESENTE','STATUS']
 
 	for col_num in range(len(columns)):
 		ws.write(row_num, col_num, columns[col_num], font_style)
@@ -51,7 +51,7 @@ def export_csv(modeladmin, request, queryset):
 				start_class = preparation_class.my_register.start_class.strftime('%H:%M')
 				date = preparation_class.my_register.date.strftime('%d/%m/%Y')
 			
-			row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, date, start_class, end_class, employee.first_name, employee.position.name, present, conclude]
+			row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.coach.first_name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, date, start_class, end_class, employee.first_name, employee.position.name, present, conclude]
 			for col_num in range(len(row)):
 				ws.write(row_num,col_num,row[col_num], font_style)
 	wb.save(response)
