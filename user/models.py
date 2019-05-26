@@ -12,7 +12,9 @@ class CustomUser(AbstractUser):
 
 
 class Employee(CustomUser):
+	email_is_corporative = models.BooleanField(default=False, verbose_name="Email Coporativo")
 	phone_number = models.CharField(max_length=150, verbose_name='Numero de Telefone')	
+	phone_number_is_corporative = models.BooleanField(default=False, verbose_name="Telefone Coporativo")
 	association = models.ForeignKey('core.Association', verbose_name='Unidade', related_name='my_employees', on_delete=models.CASCADE)
 	position = models.ForeignKey('Position', verbose_name='Cargo', related_name='employees', on_delete=models.CASCADE)
 

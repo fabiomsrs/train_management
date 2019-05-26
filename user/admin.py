@@ -49,8 +49,8 @@ class EmployeeAdmin(admin.ModelAdmin):
 
 	def get_fields(self, request, obj):
 		if request.user.is_superuser:
-			return ('username','password','first_name','last_name','is_staff','association', 'position', 'phone_number', 'email')
-		return ('username','password','first_name','last_name','association', 'position', 'phone_number', 'email')
+			return ('username','password','first_name','last_name','is_staff','association', 'position', ('phone_number','phone_number_is_corporative'), ('email','email_is_corporative'))
+		return ('username','password','first_name','last_name','association', 'position', ('phone_number','phone_number_is_corporative'), ('email','email_is_corporative'))
 
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)

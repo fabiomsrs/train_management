@@ -23,7 +23,7 @@ try:
 except: 
     locale.setlocale(locale.LC_ALL, 'Portuguese_Brazil') 
     
-for employee in Employee.objects.filter(Q(my_preparations_classes__date__gte=datetime.today().date()) | Q(position__my_preparations_classes__association=F('association'))).distinct():
+for employee in Employee.objects.filter(Q(my_preparations_classes__date__gte=datetime.today().date()) | Q(position__my_preparations_classes__association=F('association'))).exclude(email_is_corporative=False).distinct():
     print(employee.first_name)
     email_content = """   
     <!DOCTYPE html>
@@ -119,7 +119,7 @@ for employee in Employee.objects.filter(Q(my_preparations_classes__date__gte=dat
     server.login(EMAIL_HOST_USER,'99789726')
     server.sendmail(EMAIL_HOST_USER, [employee.email], MESSAGE.as_string())
     
-for employee in Employee.objects.filter(my_classes__date__gte=datetime.today().date()):
+for employee in Employee.objects.filter(my_classes__date__gte=datetime.today().date()).exclude(email_is_corporative=False):
     print(employee.first_name)
     email_content = """   
     <!DOCTYPE html>
