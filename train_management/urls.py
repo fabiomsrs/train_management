@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
+from core.views import PreparationClassView
 
 admin.site.site_header = 'Trainer'
 admin.site.site_title = 'Trainer'
@@ -24,6 +25,7 @@ admin.site.index_title = ''
 
 urlpatterns = [
     path('', admin.site.urls),
+    path('preparation_class/<int:pk>/',PreparationClassView.as_view(), name='preparation_class_view')
 ]
 
 if settings.DEBUG:

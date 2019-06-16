@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import timezone
 from django.db.models import Q
 from .forms import AssociationForm, LocationForm, PreparationClassForm, AvaliationForm
-from .models import Association, PreparationClass, Location, ClassRegister, Avaliation
+from .models import Association, PreparationClass, Location, ClassRegister, Avaliation, Grades
 from .utils import LocationFilter, CoachFilter
 from user.models import Employee
 from datetime import datetime
@@ -57,21 +57,43 @@ def export_csv(modeladmin, request, queryset):
 	wb.save(response)
 	return response
 
+class GradeAdmin(admin.TabularInline):	
+	model = Grades
+	extra = 0
+	
+	def get_readonly_fields(self, request, obj=None):
+		if obj: # obj is not None, so this is an edit
+			return ['employee',] # Return a list or tuple of readonly fields' names
+		else: # This is an addition
+			return []
+	
+	def get_fields(self, request, obj):		
+		return ('employee', 'value')		
+	
+
 @admin.register(Avaliation)
 class AvaliationAdmin(admin.ModelAdmin):
 	form = AvaliationForm
 	search_fields = ['preparation_class__title']
 	list_display = ('preparation_class','created_at','created_by','unidade')    
 	list_display_links = ('preparation_class',)
+	inlines = [GradeAdmin]
+
+	class Media:
+		js = (			
+			'js/js.cookie.min.js',
+			'js/jquery-3.2.1.min.js',       # project static folder
+			'js/avaliation.js',   # app static folder
+		)
 
 	def unidade(self, obj):
-		return obj.preparation_class.association.name
+		return obj.preparation_class.association.name	
 
-	def has_change_permission(self, request, obj=None):
-		if obj:
-			if request.user.pk == obj.preparation_class.coach.pk or request.user.is_superuser:
-				return True
-		return False
+	def get_readonly_fields(self, request, obj=None):
+		if obj: # obj is not None, so this is an edit
+			return ['preparation_class',] # Return a list or tuple of readonly fields' names
+		else: # This is an addition
+			return []
 
 	def has_add_permission(self, request, obj=None):
 		if request.user.is_superuser:
@@ -97,17 +119,18 @@ class AvaliationAdmin(admin.ModelAdmin):
 		return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 	def get_fields(self, request, obj):		
-		return ('preparation_class', 'frequency', 'survey', 'avaliation', 'grades')
-	
+		return ('preparation_class', 'frequency', 'survey', 'avaliation', 'grades')		
+
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
 		if request.user.is_superuser or request.user.employee.has_staff_perm:
 			return qs.all()
-		return qs.filter(Q(preparation_class__coach__pk=request.user.pk) | Q(preparation_class__employees__pk=request.user.pk) | (Q(preparation_class__positions__pk=request.user.employee.position.pk) & Q(preparation_class__association=request.user.employee.association)))
+		return qs.filter(Q(preparation_class__coach__pk=request.user.pk) | Q(preparation_class__employees__pk=request.user.pk) | (Q(preparation_class__positions__pk=request.user.employee.position.pk) & Q(preparation_class__association=request.user.employee.association)))	
 
-	def save_model(self, request, obj, form, change):		
+	def save_model(self, request, obj, form, change):						
 		obj.created_by = request.user
 		super(AvaliationAdmin, self).save_model(request, obj, form, change)
+
 
 @admin.register(Association)
 class AssociationAdmin(admin.ModelAdmin):	
@@ -228,6 +251,7 @@ class PreparationClassAdmin(admin.ModelAdmin):
 
 	def get_fields(self, request, obj):		
 		return ('title','date','time','duration','coach','location','association','employees','positions','description')
+	
 
 	def save_model(self, request, obj, form, change):
 		if not request.user.is_superuser:	

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
@@ -50,3 +51,22 @@ class CoachFilter(InputFilter):
                 Q(coach__first_name__icontains=bit) 
             )
         return queryset.filter(coach)
+    
+from django.http import JsonResponse
+
+class UnicodeJsonResponse(JsonResponse):
+    def __init__(self, data={}, **kwargs):
+        super().__init__(data, json_dumps_params={'ensure_ascii':False}, **kwargs)
+
+
+
+# class InlineFormset(BaseInlineFormSet):  
+#     def save_new(self, form, commit=True):
+#         instance = form.save(commit=False)        
+#         help(instance,"@@@@@@@@@@@@@@@@@@@@")
+#         return super(InlineFormset, self).save_new(form, commit=commit)
+
+#     def save_existing(self, form, instance, commit=True):
+#         instance = form.save(commit=False)        
+#         help(instance,"@@@@@@@@@@@@@@@@@@@@")
+#         return form.save(commit=commit)

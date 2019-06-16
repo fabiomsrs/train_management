@@ -61,7 +61,7 @@ class Employee(CustomUser):
 		return self.user_permissions.count() >= 8
 
 	def __str__(self):
-		return self.first_name + ' - unidade: ' + self.association.name
+		return self.username + ' - unidade: ' + self.association.name
 	
 	class Meta:        
 		verbose_name = 'Funcionario'

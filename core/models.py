@@ -22,12 +22,13 @@ class PreparationClass(models.Model):
 	
 	def save(self, *args, **kwargs):
 		if not self.pk:
-			super(PreparationClass, self).save(*args, **kwargs)
+			super(PreparationClass, self).save(*args, **kwargs)			
 			class_register = ClassRegister.objects.create(preparation_class=self)
 			permission = Permission.objects.get(codename='change_classregister')			
 			self.coach.user_permissions.add(permission)
 			permission = Permission.objects.get(codename='view_classregister')			
-			self.coach.user_permissions.add(permission)
+			self.coach.user_permissions.add(permission)			
+			
 			
 		super(PreparationClass, self).save(*args, **kwargs)
 
@@ -75,13 +76,23 @@ class Location(models.Model):
 
 class Avaliation(models.Model):
 	preparation_class = models.OneToOneField('PreparationClass', related_name='my_avaliation', verbose_name="Treinamento", on_delete=models.CASCADE)
-	frequency = models.FileField(verbose_name='frequencia')
-	survey = models.FileField(verbose_name='pesquisa')
+	frequency = models.FileField(verbose_name='frequencia', blank=True, null=True)
+	survey = models.FileField(verbose_name='pesquisa', blank=True, null=True)
 	avaliation = models.FileField(verbose_name='avaliação', blank=True, null=True)
-	grades = models.FileField(verbose_name='notas', blank=True, null=True)
+	grades = models.FileField(verbose_name='arquivo das notas', blank=True, null=True)	
 	created_at = models.DateTimeField(auto_now=True, editable=False, verbose_name='data de inclusão')
 	created_by = models.ForeignKey('user.CustomUser', editable=False, verbose_name='incluido por' , on_delete=models.CASCADE)
 
 	class Meta:
 		verbose_name = 'Avaliação'
 		verbose_name_plural = 'Avaliações'		
+
+
+class Grades(models.Model):	
+	avaliation = models.ForeignKey('Avaliation', related_name='my_grades',verbose_name='notas', on_delete=models.CASCADE)
+	employee =  models.ForeignKey('user.Employee', verbose_name="Participante", blank=True, on_delete=models.CASCADE)
+	value = models.DecimalField(max_digits=30, decimal_places=2, verbose_name='nota', default='0')
+
+	class Meta:
+		verbose_name = "Nota"
+		verbose_name_plural = "Notas"
