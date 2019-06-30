@@ -60,6 +60,22 @@ def export_csv(modeladmin, request, queryset):
 class GradeAdmin(admin.TabularInline):	
 	model = Grades
 	extra = 0
+
+	def has_add_permission(self, request, obj=None):
+		if request.user.is_superuser:
+			return True
+		elif request.user.employee.my_classes.count() > 0:			
+			return True
+		return False
+
+	def has_view_permission(self, request, obj=None):				
+		return True					
+
+	def has_delete_permission(self, request, obj=None):
+		if obj:
+			if request.user.pk == obj.preparation_class.coach.pk or request.user.is_superuser:
+				return True
+		return False		
 	
 	def get_readonly_fields(self, request, obj=None):
 		if obj: # obj is not None, so this is an edit

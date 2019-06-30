@@ -39,11 +39,11 @@ $(function(){
         let host = window.location.host   
         let id = $('#id_preparation_class').val()             
         
-        $.get("/preparation_class/"+id+"/",function(response, status, rq){
+        $.get("/preparation_class/"+id+"/",function(response, status, rq){            
             let data = response.data
             let count = 0             
             $("#id_my_grades-TOTAL_FORMS").val(data.employees.length)        
-            $("tbody").empty();
+            $("tbody").empty();            
             data.employees.forEach(employee => {                
                 let newRowContent = `<tr class='form-row dynamic-my_grades row`+ (count + 1) +`' id='my_grades-`+ count +`'>
                     <td class='original'>          
