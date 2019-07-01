@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
+from user.models import Employee
 import datetime
 
 # Create your models here.
@@ -14,12 +15,17 @@ class PreparationClass(models.Model):
 	location = models.ForeignKey('Location', verbose_name='Local do treinamento', on_delete=models.CASCADE)	
 	association = models.ForeignKey('Association', verbose_name='Unidade', related_name='my_preparations_classes', on_delete=models.CASCADE)
 	employees = models.ManyToManyField('user.Employee', blank=True, verbose_name='funcionarios', related_name='my_preparations_classes')
-	positions = models.ManyToManyField('user.Position', blank=True, verbose_name='cargos', related_name='my_preparations_classes')
+	positions = models.ManyToManyField('user.Position', blank=True, verbose_name='cargos', related_name='my_preparations_classes')	
 	description = models.TextField(max_length=140)	
 
 	def __str__(self):
 		return self.title
 	
+	@property
+	def attendeeds(self):
+		return self.employees.all().union(Employee.objects.filter(position__in=self.positions.all(), association=self.association ))
+
+
 	def save(self, *args, **kwargs):
 		if not self.pk:
 			super(PreparationClass, self).save(*args, **kwargs)			
