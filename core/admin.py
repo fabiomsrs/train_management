@@ -57,9 +57,43 @@ def export_csv(modeladmin, request, queryset):
 	wb.save(response)
 	return response
 
+
+@admin.register(Grades)
+class ShowGradeAdmin(admin.ModelAdmin):	
+	list_display = ('preparation_class','employee','value')    
+	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.list_display_links = None
+
+	def preparation_class(self, obj):
+		return obj.avaliation.preparation_class.title
+
+	def has_add_permission(self, request, obj=None):		
+		return False
+
+	def has_view_permission(self, request, obj=None):					
+		return True
+
+	def has_change_permission(self, request, obj=None):
+		return False
+
+	def has_delete_permission(self, request, obj=None):		
+		return False		
+	
+	def get_fields(self, request, obj):		
+		return ('employee', 'value')	
+
+	def get_queryset(self, request):
+		qs = super().get_queryset(request)
+		if request.user.is_superuser:
+			return qs.all()		
+		return qs.filter(employee__pk = request.user.pk)	
+
+
 class GradeAdmin(admin.TabularInline):	
 	model = Grades
-	extra = 0
+	extra = 0	
 
 	def has_add_permission(self, request, obj=None):
 		if request.user.is_superuser:
@@ -84,8 +118,8 @@ class GradeAdmin(admin.TabularInline):
 			return []
 	
 	def get_fields(self, request, obj):		
-		return ('employee', 'value')		
-	
+		return ('employee', 'value')			
+
 
 @admin.register(Avaliation)
 class AvaliationAdmin(admin.ModelAdmin):
@@ -119,7 +153,7 @@ class AvaliationAdmin(admin.ModelAdmin):
 		return False
 
 	def has_view_permission(self, request, obj=None):				
-		return True					
+		return self.has_delete_permission(request, obj)
 
 	def has_delete_permission(self, request, obj=None):
 		if obj:

@@ -51,6 +51,9 @@ class ClassRegister(models.Model):
 	end_class = models.TimeField(verbose_name='Termino do treinamento', null=True, blank=True)
 	conclude = models.BooleanField(default=False, verbose_name='Registro Concluido')
 
+	def __str__(self):
+		return self.preparation_class.title
+	
 	class Meta:
 		verbose_name = 'Registro de Treino'
 		verbose_name_plural = 'Registros de Treino'
@@ -89,6 +92,9 @@ class Avaliation(models.Model):
 	created_at = models.DateTimeField(auto_now=True, editable=False, verbose_name='data de inclusão')
 	created_by = models.ForeignKey('user.CustomUser', editable=False, verbose_name='incluido por' , on_delete=models.CASCADE)
 
+	def __str__(self):
+		return self.preparation_class.title
+
 	class Meta:
 		verbose_name = 'Avaliação'
 		verbose_name_plural = 'Avaliações'		
@@ -98,6 +104,9 @@ class Grades(models.Model):
 	avaliation = models.ForeignKey('Avaliation', related_name='my_grades',verbose_name='notas', on_delete=models.CASCADE)
 	employee =  models.ForeignKey('user.Employee', verbose_name="Participante", blank=True, on_delete=models.CASCADE)
 	value = models.DecimalField(max_digits=30, decimal_places=2, verbose_name='nota', default='0')
+
+	def __str__(self):
+		return "Nota " + self.employee.username	
 
 	class Meta:
 		verbose_name = "Nota"
