@@ -30,7 +30,7 @@ def export_csv(modeladmin, request, queryset):
 	font_style = xlwt.XFStyle()
 	font_style.font.bold = False
 
-	columns = ['COD','NOME DO TREINAMENTO','DESCRICAO','UNIDADE','LOCAL','TUTOR','DATA PROGRAMADA','HORARIO PROGRAMADO','DURACAO PROGRAMADA','DATA REGISTRO','HORARIO INICIADO','HORARIO FINALIZADO','NOME PARTICIPANTE','CARGO','PRESENTE','STATUS']
+	columns = ['COD','NOME DO TREINAMENTO','DESCRICAO','UNIDADE','LOCAL','TUTOR','DATA PROGRAMADA','HORARIO PROGRAMADO','DURACAO PROGRAMADA','DATA REGISTRO','HORARIO INICIADO','HORARIO FINALIZADO','NOME PARTICIPANTE','CARGO','PRESENTE','STATUS', 'NOTA']
 
 	for col_num in range(len(columns)):
 		ws.write(row_num, col_num, columns[col_num], font_style)
@@ -43,6 +43,7 @@ def export_csv(modeladmin, request, queryset):
 			end_class = ""
 			start_class = ""
 			date = ""
+			grade = ""
 			if employee in preparation_class.my_register.attendeeds.all():
 				present = 'Sim'
 			if preparation_class.my_register.conclude:
@@ -50,8 +51,9 @@ def export_csv(modeladmin, request, queryset):
 				end_class = preparation_class.my_register.end_class.strftime('%H:%M')
 				start_class = preparation_class.my_register.start_class.strftime('%H:%M')
 				date = preparation_class.my_register.date.strftime('%d/%m/%Y')
+				grade = Grades.objects.filter(avaliation__preparation_class=preparation_class, employee=employee).first()
 			
-			row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.coach.first_name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, date, start_class, end_class, employee.first_name, employee.position.name, present, conclude]
+			row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.coach.first_name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, date, start_class, end_class, employee.first_name, employee.position.name, present, conclude, grade.value]
 			for col_num in range(len(row)):
 				ws.write(row_num,col_num,row[col_num], font_style)
 	wb.save(response)
