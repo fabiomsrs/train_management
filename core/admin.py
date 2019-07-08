@@ -154,6 +154,9 @@ class AvaliationAdmin(admin.ModelAdmin):
 			return True
 		return False
 
+	def has_change_permission(self, request, obj=None):				
+		return self.has_delete_permission(request, obj)
+
 	def has_view_permission(self, request, obj=None):				
 		return self.has_delete_permission(request, obj)
 
