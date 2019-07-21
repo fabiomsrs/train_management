@@ -155,10 +155,14 @@ class AvaliationAdmin(admin.ModelAdmin):
 		return False
 
 	def has_change_permission(self, request, obj=None):				
-		return self.has_delete_permission(request, obj)
+		if PreparationClass.objects.filter(coach__pk=request.user.pk).exists():
+			return True
+		return False
 
 	def has_view_permission(self, request, obj=None):				
-		return self.has_delete_permission(request, obj)
+		if PreparationClass.objects.filter(coach__pk=request.user.pk).exists():
+			return True
+		return False
 
 	def has_delete_permission(self, request, obj=None):
 		if obj:
@@ -179,8 +183,8 @@ class AvaliationAdmin(admin.ModelAdmin):
 	def get_queryset(self, request):
 		qs = super().get_queryset(request)
 		if request.user.is_superuser or request.user.employee.has_staff_perm:
-			return qs.all()
-		return qs.filter(Q(preparation_class__coach__pk=request.user.pk) | Q(preparation_class__employees__pk=request.user.pk) | (Q(preparation_class__positions__pk=request.user.employee.position.pk) & Q(preparation_class__association=request.user.employee.association)))	
+			return qs.all()	
+		return qs.filter(Q(preparation_class__coach__pk=request.user.pk) | Q(preparation_class__employees__pk=request.user.pk) | (Q(preparation_class__positions__pk=request.user.employee.position.pk) & Q(preparation_class__association=request.user.employee.association))).distinct()
 
 	def save_model(self, request, obj, form, change):						
 		obj.created_by = request.user

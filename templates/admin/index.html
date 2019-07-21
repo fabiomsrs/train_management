@@ -146,9 +146,11 @@
             <ul class="actionlist">                
             {% for app in app_list %}
                 {% for model in app.models %}
-            <li>                
-                <a href="{{ model.admin_url }}">{{ model.name }}</a>
-            </li>
+                    {% if model.admin_url %}
+                        <li>                
+                            <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                        </li>
+                    {% endif %}
                 {% endfor %}
             {% endfor %}
             </ul>                    
