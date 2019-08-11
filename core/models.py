@@ -24,7 +24,10 @@ class PreparationClass(models.Model):
 	@property
 	def attendeeds(self):
 		return self.employees.all().union(Employee.objects.filter(position__in=self.positions.all(), association=self.association ))
-
+	
+	@property
+	def is_equal_or_longer_than_hour(self):
+		return self.duration >= 60
 
 	def save(self, *args, **kwargs):
 		if not self.pk:

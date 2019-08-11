@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin import widgets
 from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import Group
@@ -52,8 +52,12 @@ def export_csv(modeladmin, request, queryset):
 				start_class = preparation_class.my_register.start_class.strftime('%H:%M')
 				date = preparation_class.my_register.date.strftime('%d/%m/%Y')
 				grade = Grades.objects.filter(avaliation__preparation_class=preparation_class, employee=employee).first()
-			
-			row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.coach.first_name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, date, start_class, end_class, employee.first_name, employee.position.name, present, conclude, grade.value]
+			if grade:
+				row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.coach.first_name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, date, start_class, end_class, employee.first_name, employee.position.name, present, conclude, grade.value]
+			elif not preparation_class.is_equal_or_longer_than_hour:
+				row = [preparation_class.pk, preparation_class.title, preparation_class.description, preparation_class.association.name, preparation_class.location.name, preparation_class.coach.first_name, preparation_class.date.strftime('%d/%m/%Y'), preparation_class.time.strftime('%H:%M'), preparation_class.duration, date, start_class, end_class, employee.first_name, employee.position.name, present, conclude]
+			else:
+				return modeladmin.message_user(request, "Algum treinamento selecionado não foi finalizado", level=messages.ERROR)
 			for col_num in range(len(row)):
 				ws.write(row_num,col_num,row[col_num], font_style)
 	wb.save(response)
@@ -62,14 +66,23 @@ def export_csv(modeladmin, request, queryset):
 
 @admin.register(Grades)
 class ShowGradeAdmin(admin.ModelAdmin):	
-	list_display = ('preparation_class','employee','value')    
+	list_display = ('treinamento','tutor','data','horario','employee','value')    
 	
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.list_display_links = None
 
-	def preparation_class(self, obj):
+	def treinamento(self, obj):
 		return obj.avaliation.preparation_class.title
+
+	def tutor(self, obj):
+		return obj.avaliation.preparation_class.coach.username
+	
+	def data(self, obj):
+		return obj.avaliation.preparation_class.date
+
+	def horario(self, obj):
+		return obj.avaliation.preparation_class.time
 
 	def has_add_permission(self, request, obj=None):		
 		return False
@@ -161,6 +174,8 @@ class AvaliationAdmin(admin.ModelAdmin):
 
 	def has_view_permission(self, request, obj=None):				
 		if PreparationClass.objects.filter(coach__pk=request.user.pk).exists():
+			return True
+		elif request.user.is_superuser:
 			return True
 		return False
 
