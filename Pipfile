@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 astroid = "==2.2.5"
 colorama = "==0.4.1"
-django = "==2.2"
+django = "==2.2.18"
 django-ajax-selects = "==1.7.1"
 isort = "==4.3.18"
 lazy-object-proxy = "==1.3.1"
